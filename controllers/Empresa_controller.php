@@ -16,8 +16,6 @@
             }else{
                 echo json_encode(['respuesta'=>'La información de la empresa no puede estar vacia']);
             }
-        }else{
-            echo json_encode(['respuesta'=>'Acceso degenado']);
         }
     }
 

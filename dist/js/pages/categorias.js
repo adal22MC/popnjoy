@@ -1,163 +1,166 @@
-const formAddCategoria = document.getElementById('formCategorias');
-const formEditCategoria = document.getElementById('formEditCategoria');
+var formCategoria = document.getElementById('formCategorias');
 
+var tablaCategorias;
 
-var idEdit; // Se guarda el id de la categoria que se desea editar
+// Titulo del modal
+var tituloModal = document.getElementById('modalTitulo');
 
+// Boton agregar categoria
+var btnAgregarCategoria = document.getElementById('agregarCategoria');
 
-document.getElementById('close').addEventListener('click', () => {
-    formAddCategoria.reset();
-});
+// Boton form del modal cateogira
+var btnFormCategoria = document.getElementById('btnFormCategoria');
 
+// Variable opcioón para saber si sera un insert o update
+var opcion; // 1 insert, 2 update
 
-/* =======================================
-    Evento cuando se presiona el boton
-    agregar categoria
- ==========================================*/
-formAddCategoria.addEventListener('submit', async (e) => {
-     e.preventDefault();
+// Variable en la que se guarda el id de la categoria
+var id;
 
-    let categoria = new FormData(formAddCategoria);
-    categoria.append('addCategoria', 'ok');
-    try{
-        let peticion = await fetch('apis/apisCategoria.php', {
-            method : 'POST',
-            body : categoria
-        });
+async function init(){
 
-        let resjson = await peticion.json();
+    tablaCategorias = $("#tablaCategorias").DataTable({
+        "responsive": true,
+        "autoWidth" : false,
+        "ajax" : {
+            "url" : "controllers/Categoria_controller.php",
+            "type": "POST",
+            "data": {
+                "select" : "OK"
+            },
+            "dataSrc":""
+        },
+        "columns" :[
+            {"data" : "id_categoria"},
+            {"data" : "descripcion"},
+            {"defaultContent": "<div class='text-center'><div class='btn-group'><button class='btn btn-info btn-sm btnEditar'><i class='fas fa-edit'></i></button><button class='btn btn-danger btn-sm btnBorrar'><i class='fas fa-trash-alt'></i></button></div></div>"}
+        ]
+    });
 
-        if(resjson.respuesta == "ALTA CORRECTA"){
-            Swal.fire(
-                'Alta exitosa!',
-                'You Cliked the button!',
-                'success'
-            ).then( r => {
-                document.getElementById('actualizarPaginaCategoria').click();
-            });
-        }else{
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: resjson.respuesta
-            });
-        }
+}
 
-    }catch(error){
-        console.log(error);
-    }
- });
+init();
 
-/* =======================================
-    Evento cuando se presiona el boton
-    editar categoria
- ==========================================*/
- $('.tablaCategorias').on('click', '.btnEditar', async (e) => {
+formCategoria.addEventListener('submit',async function(e){
     e.preventDefault();
-    
-    let formData = new FormData();
-    formData.append('getSucursalId',e.target.id);
 
-    try {
-        let peticion = await fetch('apis/apisCategoria.php', {
-            method : 'POST',
-            body : formData
-        })
+    let accion;
+    let mensaje;
 
-        let resjson = await peticion.json();
-
-        document.getElementById('editDesCateogoria').value = resjson.descripcion;
-        idEdit = resjson.id_categoria;
-    } catch (error) {
-        console.log(error);
+    if(opcion == 1){
+        accion = "insert";
+        mensaje = "Registro exitoso";
+    }else if(opcion == 2){
+        accion = "update";
+        mensaje = "Modificación exitosa";
     }
- });
 
- /* =======================================
-    Evento cuando se presiona el boton
-    guardar cambios para editar una categoria
- ========================================== */
- formEditCategoria.addEventListener('submit',async (e) => {
-    e.preventDefault();
-    
-    let formEdit = new FormData(formEditCategoria);
-    formEdit.append('idEdit', idEdit);
+    let datos = new FormData(formCategoria);
+    datos.append(accion,'OK');
+    datos.append('id', id);
 
-    let peticion = await fetch('apis/apisCategoria.php', {
+    let peticion = await fetch('controllers/Categoria_controller.php', {
         method : 'POST',
-        body : formEdit
-    })
+        body : datos
+    });
 
     let resjson = await peticion.json();
 
-    if(resjson.respuesta  == "MODIFICACION EXITOSA"){
-        document.getElementById('closeEdit').click();
-        Swal.fire(
-            'CATEGORIA MODIFICADA!',
-            'You clicked the button!',
-            'success'
-        ).then( result => {
-            document.getElementById('actualizarPaginaCategoria').click();
-        });
+    console.log(resjson);
+    if(resjson.respuesta === "OK"){
+        $("#modalCategorias").modal('hide');
+        notificacionExitosa(mensaje);
     }else{
-        Swal.fire({
-            icon: 'error',
-            title: 'Oops...',
-            text: resjson.respuesta
-        });
+        notificarError(resjson.respuesta);
     }
 
- });
+});
 
- /* =======================================
-    Evento cuando se presiona el boton
-    eliminar de categoria
- ==========================================*/
- $('.tablaCategorias').on('click', '.btnBorrar', async (e) => {
-    e.preventDefault();
-    
-    try{
-        
-        const result = await Swal.fire({
-            title: '¿ESTA SEGURO DE ELIMINAR LA CATEGORIA?',
-            text: "Si no lo esta puede cancelar la acción!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, delete it!'
+btnAgregarCategoria.addEventListener('click', () => {
+
+    opcion = 1;
+
+    tituloModal.innerText = "Creación de una nueva categoria";
+    btnFormCategoria.innerText = "Guardar";
+    formCategoria.reset();
+
+});
+
+$(document).on('click', '.btnEditar', function(){
+
+    opcion = 2;
+
+    if(tablaCategorias.row(this).child.isShown()){
+        var data = tablaCategorias.row(this).data();
+    }else{
+        var data = tablaCategorias.row($(this).parents("tr")).data();
+    }
+
+    id = data['id_categoria'];
+
+    tituloModal.innerHTML = "Modificando categoria";
+    $("#descripcion").val(data['descripcion']);
+    btnFormCategoria.innerText = "Guardar cambios";
+
+    $("#modalCategorias").modal('show');
+});
+
+$(document).on('click', '.btnBorrar', async function(){
+
+    if(tablaCategorias.row(this).child.isShown()){
+        var data = tablaCategorias.row(this).data();
+    }else{
+        var data = tablaCategorias.row($(this).parents("tr")).data();
+    }
+
+    const result = await Swal.fire({
+        title: '¿ESTA SEGURO DE ELIMINAR LA CATEGORIA?',
+        text: "Si no lo esta puede cancelar la acción!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#0275d8',
+        cancelButtonColor: '#d9534f',
+        confirmButtonText: 'Si, eliminar!'
+    });
+
+    if(result.value){
+        let datos = new FormData();
+        datos.append('delete', 'OK');
+        datos.append('id', data['id_categoria']);
+
+        let peticion = await fetch('controllers/Categoria_controller.php', {
+            method : 'POST',
+            body : datos
         });
 
-        if(result.value){
-            const form = new FormData();
-            form.append('deleteCategoria', e.target.id);
-            const eliminar = await fetch('apis/apisCategoria.php', {
-                method : 'POST',
-                body : form
-            })
+        let resjson = await peticion.json();
 
-            const resjson = await eliminar.json();
-            console.log(resjson);
-            if(resjson.respuesta == "ELIMINACION CORRECTA"){
-                Swal.fire(
-                    'Eliminación exitosa!',
-                    'You Cliked the button!',
-                    'success'
-                ).then(r =>{
-                    document.getElementById('actualizarPaginaCategoria').click();
-                });
-            }else{
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: resjson.respuesta
-                });
-            }
+        if(resjson.respuesta === "OK"){
+            notificacionExitosa('Eliminación exitosa');
+        }else{
+            notificarError(resjson.respuesta);
         }
-        
-    }catch(err){
-        console.log(err)
     }
-    
- });
- 
+
+});
+
+function notificacionExitosa(mensaje){
+    Swal.fire(
+        mensaje,
+        '',
+        'success'
+    ).then(r => {
+        tablaCategorias.ajax.reload(null,false);
+    });
+}
+
+function notificarError(mensaje){
+    Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: mensaje
+    })
+}
+
+
+

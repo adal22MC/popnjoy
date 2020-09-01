@@ -1,9 +1,9 @@
 <?php
   session_start();
-  if(isset($_SESSION['usuario'])){}else{
+  if(!isset($_SESSION['usuario'])){
     header('Location: index.php');
   }
-  include("models/categoria_modelo.php");
+  
 ?>
 
 
@@ -29,7 +29,7 @@
 
             <div class="card">
               <div class="card-header">
-                <button class="btn btn-outline-primary" data-toggle="modal" data-target="#modalAgregarCategorias">
+                <button id="agregarCategoria" class="btn btn-outline-primary" data-toggle="modal" data-target="#modalCategorias">
 
                   Agregar Nueva Categoria
 
@@ -38,7 +38,7 @@
               </div>
               <!-- /.card-header -->
               <div class="card-body">
-                <table id="example1" class="table table-bordered table-striped tablaCategorias">
+                <table id="tablaCategorias" class="table table-bordered table-striped tablaCategorias">
                   <thead>
                     <tr>
                       <th>ID Categoria</th>
@@ -47,10 +47,7 @@
                     </tr>
                   </thead>
 
-                  <tbody id="categoriasBody">
-                    <?php
-                      ModeloCategoria::llenasTablaCategorias();
-                    ?>
+                  <tbody>
                   </tbody>
 
                 </table>
@@ -75,7 +72,7 @@
   MODAL AGREGAR CATEGORIAS
   ======================================-->
 
-    <div id="modalAgregarCategorias" class="modal fade" role="dialog">
+    <div id="modalCategorias" class="modal fade" role="dialog">
 
       <div class="modal-dialog">
 
@@ -89,7 +86,7 @@
 
             <div class="modal-header">
 
-              <h5 class="modal-title" id="exampleModalLabel">Nueva Categoria</h5>
+              <h5 class="modal-title" id="modalTitulo">Nueva Categoria</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -111,7 +108,7 @@
                       <i class="fab fa-cuttlefish"></i>
                     </span>
                   </div>
-                  <input type="text" class="form-control" name="desCategorias" placeholder="Ingresar la descripción la categoria" required>
+                  <input id="descripcion" type="text" class="form-control" name="descripcion" placeholder="Descripción de la categoria" required>
                 </div>
 
               </div>
@@ -124,73 +121,12 @@
 
             <div class="modal-footer">
               <button id="close" type="button" class="btn btn-default pull-left" data-dismiss="modal">Cancelar</button>
-              <button id="registrarCategorias" name="registrarCategoria" type="submit" class="btn btn-primary">Agregar Categorias</button>
+              <button id="btnFormCategoria" name="registrarCategoria" type="submit" class="btn btn-primary">Agregar Categorias</button>
             </div>
           </form>
         </div>
       </div>
     </div>
-
-  <!--=====================================
-  MODAL EDITAR CATEGORIA
-  ======================================-->
-
-    <div id="modalEditarSucursal" class="modal fade" role="dialog">
-
-      <div class="modal-dialog">
-
-        <div class="modal-content">
-
-          <form id="formEditCategoria">
-
-            <!--=====================================
-             HEADER DEL MODAL
-            ======================================-->
-
-            <div class="modal-header">
-
-              <h5 class="modal-title">Editar Categoria</h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-
-            <!--=====================================
-             CUERPO DEL MODAL
-           ======================================-->
-
-            <div class="modal-body">
-
-              <div class="box-body">
-
-                <!-- ENTRADA PARA EL NOMBRE -->
-                <div class="input-group pt-3">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text">
-                      <i class="fab fa-cuttlefish"></i>
-                    </span>
-                  </div>
-
-                  <input id="editDesCateogoria" type="text" class="form-control" name="editDesCategoria" placeholder="Ingresar nombre de sucursal" required>
-                </div>
-
-              </div>
-
-            </div>
-
-            <!--=====================================
-              PIE DEL MODAL
-              ======================================-->
-
-            <div class="modal-footer">
-              <button id="closeEdit" type="button" class="btn btn-default pull-left" data-dismiss="modal">Cancelar</button>
-              <button id="editarSucursal" type="submit" class="btn btn-primary">Guardar cambios</button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-
 
     <?php include("footer.php") ?>
 

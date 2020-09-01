@@ -21,32 +21,23 @@ async function init(){
 
 init();
 
-editarSucursal.addEventListener('submit', function(e){
-
-    $.ajax({
-        url : "../controllers/Empresa_controller.php",
-        type : "POST",
-        data : {
-            'update' : 'OK'
-        },
-        dataType : 'json',
-        success : function(respuesta){
-            
-            if(respuesta.respuesta == "OK"){
-                notificacionExitosa('Legalización realizado con exito!');
-                obtenerUltimoDespacho();
-            }else{
-                notificarError(respuesta.respuesta);
-            }
-            
-            console.log(respuesta)
-        },
-        error : function(xhr, status){
-            notificarError('Ha ocurrido un error');
-            console.log(xhr);
-            console.log(status)
-        }
+editarSucursal.addEventListener('submit', async function(e){
+    e.preventDefault();
+    let datos = new FormData(editarSucursal);
+    datos.append('update', 'OK');
+ 
+    let peticion = await fetch('controllers/Empresa_controller.php', {
+        method : 'POST',
+        body : datos
     })
+ 
+    let resjson = await peticion.json();
+    
+    if(resjson.respuesta === "OK"){
+        notificacionExitosa('Modificación de datos exitosa!');
+    }else{
+        notificarError(resjson.respuesta);
+    }
 
 });
 
@@ -55,9 +46,7 @@ function notificacionExitosa(mensaje){
         mensaje,
         '',
         'success'
-    ).then(result => {
-        window.location = "despacho.php";
-    });
+    )
 }
 
 function notificarError(mensaje){

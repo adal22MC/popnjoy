@@ -30,10 +30,6 @@
 
                 $numRows = $query->rowCount();
 
-                if($numRows <= 0){
-                    return "Se genero un error al intentar modificar los datos";
-                }
-
                 return "OK";
             }catch(PDOException $e){
                 return $e->getMessage();
