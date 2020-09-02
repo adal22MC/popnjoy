@@ -1,14 +1,11 @@
 -- CREATE DATABASE POS;
 
-
 create table usuarios(
   username varchar(250) PRIMARY KEY,
   password varchar(250)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
 insert into usuarios values ('pop', 'pop');
-
-
 
 CREATE TABLE categorias(
   id_categoria int NOT NULL AUTO_INCREMENT,
@@ -25,6 +22,7 @@ CREATE TABLE clientes (
   telefono text COLLATE utf8_spanish_ci NOT NULL,
   direccion text COLLATE utf8_spanish_ci NOT NULL,
   porcentaje float NOT NULL,
+  status int NOT NULL,
   primary key(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
@@ -48,53 +46,109 @@ VALUES ('Popnjoy', '98653121213', 'popnjoy@pop.com','C. Matriz: Av Pacifico #240
 CREATE TABLE productos(
   id_producto int NOT NULL AUTO_INCREMENT,
   nombre text COLLATE utf8_spanish_ci NOT NULL,
-  categoria int NOT NULL references categorias,
+  categoria int NOT NULL,
   stock int NOT NULL,
   stock_min int NOT NULL,
   stock_max int NOT NULL,
   precio_venta float NOT NULL,
-  precio_compra float NOT NULL,
   observaciones text COLLATE utf8_spanish_ci NOT NULL,
+  status int NOT NULL,
+  FOREIGN KEY (categoria) REFERENCES categorias(id_categoria),
   primary key(id_producto)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
+CREATE TABLE detalle_productos(
+  cns int NOT NULL AUTO_INCREMENT,
+  id_producto_dp int NOT NULL,
+  stock int NOT NULL,
+  precio_compra float NOT NULL,
+  disponible int NOT NULL,
+  FOREIGN KEY (id_producto_dp) REFERENCES productos(id_producto),
+  PRIMARY KEY (cns,id_producto_dp)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
+
+CREATE TABLE insumos(
+  id_insumo int NOT NULL AUTO_INCREMENT,
+  nombre text COLLATE utf8_spanish_ci NOT NULL,
+  stock float NOT NULL,
+  stock_min int NOT NULL,
+  stock_max int NOT NULL,
+  um text COLLATE utf8_spanish_ci NOT NULL, -- unidad de medida
+  status int NOT NULL,
+  PRIMARY KEY (id_insumo)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
+
+CREATE TABLE detalle_insumos(
+
+  cns int NOT NULL AUTO_INCREMENT,
+  id_insumo_di int NOT NULL,
+  stock float NOT NULL,
+  precio_compra float NOT NULL,
+  diponible int NOT NULL, 
+  FOREIGN KEY (id_insumo_di) REFERENCES insumos (id_insumo),
+  PRIMARY KEY (cns,id_insumo_di)
+
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
+
+-- TABLA INSUMOS - PRODUCTOS
+CREATE TABLE producto_insumos(
+  producto int NOT NULL,
+  insumo int NOT NULL,
+  FOREIGN KEY (producto) REFERENCES productos (id_producto),
+  FOREIGN KEY (insumo) REFERENCES insumos (id_insumo),
+  PRIMARY KEY (producto, insumo)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
 -- TABLA VENTAS
 create table ventas(
   idVenta int NOT NULL AUTO_INCREMENT, 
-  cliente text COLLATE utf8_spanish_ci NOT NULL,
+  cliente int NOT NULL,
   fecha date DEFAULT CURRENT_DATE,
   hora time DEFAULT CURRENT_TIME,
   totalVendido float NOT NULL,
+  ganancia float NOT NULL,
+  FOREIGN KEY (cliente) REFERENCES clientes (id),
   primary key(idVenta)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
 -- DETALLE VENTA
 create table detalle_venta(
   cns int NOT NULL AUTO_INCREMENT,
-  idventa int NOT NULL references ventas,
-  nomProducto text COLLATE utf8_spanish_ci NOT NULL,
+  idventa int NOT NULL,
+  producto int NOT NULL,
   cantidad int NOT NULL,
-  precioU float NOT NULL,
-  total float NOT NULL,
-  categoria text COLLATE utf8_spanish_ci NOT NULL,
-  codigo int NOT NULL,
+  precio float NOT NULL, -- precio al que se vendio
+  total float NOT NULL, -- total de la venta
+  -- categoria text COLLATE utf8_spanish_ci NOT NULL,
+  -- codigo int NOT NULL,
+  FOREIGN KEY (producto) REFERENCES productos(id_producto),
+  FOREIGN KEY (idVenta) REFERENCES ventas (idVenta),
   primary key(cns, idVenta)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
 -- CIERRES DE DIA
-create table cierres(
-  id_c int NOT NULL AUTO_INCREMENT,
-  fecha_c date DEFAULT CURRENT_DATE,
+create table cierre_dia(
+  id_cd int NOT NULL AUTO_INCREMENT,
+  fecha date DEFAULT CURRENT_DATE,
   hora time DEFAULT CURRENT_TIME,
-  tv_dia float NOT NULL,
-  primary key(id_c)
+  venta float NOT NULL,
+  ganancia float NOT NULL,
+  PRIMARY KEY(id_cd)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
 -- DETALLE CIERRE DIA
-create table detalle_cierre(
+create table detalle_cierre_dia(
   cns int NOT NULL AUTO_INCREMENT,
-  id_c int NOT NULL references cierres,
+  id_cd_dcd int NOT NULL references cierre_dia,
   id_venta int NOT NULL references ventas,
-  primary key(cns, id_c)
+  primary key(cns, id_cd_dcd)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
+
+CREATE TABLE cierre_mes(
+  id_cm int NOT NULL AUTO_INCREMENT,
+  fecha date DEFAULT CURRENT_DATE,
+  hora time DEFAULT CURRENT_TIME,
+  venta_total float NOT NULL,
+  ganancia float NOT NULL,
+  PRIMARY KEY (id_cm)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;

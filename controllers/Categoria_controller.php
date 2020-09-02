@@ -1,6 +1,6 @@
 <?php
 
-    require_once "../models/Categoria_modelo.php";
+    require_once "../models/Categoria_model.php";
     session_start();
 
     if(isset($_POST['select'])){

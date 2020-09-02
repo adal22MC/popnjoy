@@ -1,76 +1,104 @@
 <?php
 
-    include('conexion.php');
+    require_once ('conexion.php');
 
-    class ModeloProducto{
+    class Producto_model {
 
-        private static $SELECT_ALL = "SELECT * FROM productos";
+        private static $SELECT = "SELECT id_producto,nombre,categoria,stock,stock_min,stock_max,precio_venta,observaciones,status,c.descripcion FROM productos, categorias c WHERE status = 1 and c.id_categoria = categoria";
 
-        private static $INSERT_PRODUCT = "INSERT INTO productos (nombre,categoria,stock,stock_min,
-        stock_max,precio_venta,precio_compra,observaciones) values(?,?,?,?,?,?,?,?)";
+        private static $INSERT = "INSERT INTO productos (nombre,categoria,stock,stock_min,
+        stock_max,precio_venta,observaciones,status) values(?,?,?,?,?,?,?,1)";
 
-        private static $UPDATE_PRODUCT = "UPDATE productos set nombre=?,categoria=?,stock=?,stock_min=?,stock_max=?,precio_venta=?,precio_compra=?,observaciones=? WHERE id_producto=?";
+        private static $UPDATE = "UPDATE productos set nombre=?,categoria=?,stock=?,stock_min=?,stock_max=?,precio_venta=?,observaciones=? WHERE id_producto=?";
 
-        public static function llenarTablaProductos(){
+        private static $DELETE = "UPDATE productos set status = 0 WHERE id_producto = ?";
+
+        public static function select(){
             try{
 
                 $conexion = new Conexion();
                 $con = $conexion->getConexion();
 
-                $pst = $con->prepare(self::$SELECT_ALL);
-                $pst->execute();
+                $query = $con->prepare(self::$SELECT);
+                $query->execute();
+                $productos = $query->fetchAll();
 
-                $productos = $pst->fetchAll();
-
-                foreach($productos as $row){
-                    $categoria = self::getNameCategoria($row['categoria']);
-                    echo '
-                        <tr>
-                            <td>'.$row['id_producto'].'</td>
-                            <td>'.$row['nombre'].'</td>
-                            <td>'.$categoria.'</td> 
-
-                        ';
-                    
-                    // Validamos en que estado se encuentra el stock
-                    if($row['stock'] > $row['stock_min'] ){
-                        echo '
-                        <td> 
-                            <button class="btn btn-sm btn-success">'.$row['stock'].' </button>
-                        </td>';
-                    }else{
-                        echo '
-                        <td>  
-                            <button class="btn btn-sm btn-danger">'.$row['stock'].' </button>
-                        </td>';
-                    }
-
-
-                    echo '
-                            <td>'.$row['precio_compra'].'</td>
-                            <td>'.$row['precio_venta'].'</td>
-                            <td>'.$row['observaciones'].'</td>
-                            <td class="text-center py-0  align-middle">
-                                <div class="btn-group btn-group-sm">
-                                    <button class="btn btn-danger btn-sm btnBorrar mr-1" id='.$row['id_producto'].' >
-                                    <i class="fas fa-trash-alt" id="'.$row['id_producto'].'"></i>
-                                    </button>
-                                
-                                    <button class="btn btn-info btnEditar" data-toggle="modal" data-target="#modalEditarCliente" id="'.$row['id_producto'].'">
-                                        <i class="fas fa-edit" id="'.$row['id_producto'].'"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    ';
-                }
                 $conexion->closeConexion();
                 $con = null;
 
+                return $productos;
+
             }catch(PDOException $e){
-                echo $e->getMessage();
+                return $e->getMessage();
             }
         }
+
+        public static function insert($producto){
+            try{
+
+                $conexion = new Conexion();
+                $con = $conexion->getConexion();
+
+                $query = $con->prepare(self::$INSERT);
+                $query->execute([$producto['nombre'],$producto['categoria'],$producto['stock'],
+                $producto['stock_min'],$producto['stock_max'],$producto['precio_venta'],
+                $producto['observaciones']]);
+                
+
+                $conexion->closeConexion();
+                $con = null;
+
+                return "OK";
+                
+            }catch(PDOException $e){
+                return $e->getMessage();
+            }
+        }
+
+        public static function update($producto){
+            try{
+
+                $conexion = new Conexion();
+                $con = $conexion->getConexion();
+
+                $query = $con->prepare(self::$UPDATE);
+                $query->execute([$producto['nombre'],$producto['categoria'],$producto['stock'],
+                $producto['stock_min'],$producto['stock_max'],$producto['precio_venta'],
+                $producto['observaciones'],$producto['id']]);
+                
+
+                $conexion->closeConexion();
+                $con = null;
+
+                return "OK";
+                
+            }catch(PDOException $e){
+                return $e->getMessage();
+            }
+        }
+
+        public static function delete($id){
+            try{
+
+                $conexion = new Conexion();
+                $con = $conexion->getConexion();
+
+                $query = $con->prepare(self::$DELETE);
+                $query->execute([$id]);
+                
+
+                $conexion->closeConexion();
+                $con = null;
+
+                return "OK";
+                
+            }catch(PDOException $e){
+                return $e->getMessage();
+            }
+        }
+
+
+
 
         public static function getNameCategoria($idCategoria){
             try{

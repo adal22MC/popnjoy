@@ -1,176 +1,200 @@
-const formAddProduct = document.getElementById('formAddProduct');
-const formEditProduct = document.getElementById('formEditPrduct');
+// Tabla de los productos
+var tablaProductos;
 
-var idProductoEdit;
+// Select de categoria
+var selectCategoria = document.getElementById('selectCategoria');
 
+// Boton form del modal de productos
+var formProducto = document.getElementById('formProducto');
 
+// Boton agregar producto
+var btnAgregarProducto = document.getElementById('btnAgregarProducto');
 
-formAddProduct.addEventListener('submit', (e) => {
+// Titulo del modal
+var tituloModal = document.getElementById('tituloModal');
+
+// Boton form del modal
+var btnFormProducto = document.getElementById('btnFormProducto');
+
+// Variable opcion, insert => 1, update 2
+var opcion;
+
+// Id del producto
+var id;
+
+function init(){
+    tablaProductos = $("#tablaProductos").DataTable({
+        "responsive": true,
+        "autoWidth" : false,
+        "ajax" : {
+            "url" : "controllers/Producto_controller.php",
+            "type": "POST",
+            "data": {
+                "select" : "OK"
+            },
+            "dataSrc":""
+        },
+        "columns" :[
+            {"data" : "id_producto", "visible" : false},
+            {"data" : "nombre"},
+            {"data" : "categoria", "visible" : false},
+            {"data" : "stock"},
+            {"data" : "stock_min"},
+            {"data" : "stock_max"},
+            {"data" : "precio_venta"},
+            {"data" : "observaciones"},
+            {"data" : "status", "visible" : false},
+            {"data" : "descripcion"},
+            {"defaultContent": "<div class='text-center'><div class='btn-group'><button class='btn btn-info btn-sm btnEditar'><i class='fas fa-edit'></i></button><button class='btn btn-danger btn-sm btnBorrar'><i class='fas fa-trash-alt'></i></button></div></div>"}
+        ]
+    });
+
+    $.ajax({
+        "url" : "controllers/Categoria_controller.php",
+        "dataType" : 'json',
+        "type": "POST",
+        "data": {
+            "select" : "OK"
+        },
+        success: function (data, textStatus, jqXHR) {
+            
+            for( let item of data ){
+                let option = document.createElement("option");
+                option.text = item.descripcion;
+                option.value = item.id_categoria;
+                selectCategoria.appendChild(option);     
+            }  
+            
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+            console.log(textStatus);
+        }
+    });
+}
+
+init();
+
+formProducto.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     // Filtro para verificar que selecciono una categoria
-    if(document.getElementById('selectCategoria').value == "Seleccione una categoria"){
+    if(selectCategoria.value == "default"){
         notifacionError("Selecciona una cateogoria!");
     }else{
-        // Preparemos los datos
-        let datosProducto = new FormData(formAddProduct);
-        datosProducto.append('addProduct', 'ok');
 
-        if(datosProducto.get('stockProducto') < 0){
-            notifacionError("El stock no puede ser negativo!");
-        }else if(datosProducto.get('stockMinimo') < 0){
+        let mensaje = "";
+
+        // Preparemos los datos
+        let datosProducto = new FormData(formProducto);
+        if(opcion == 1){
+            datosProducto.append('insert', 'OK');
+            mensaje = "Registro de producto exitoso!";
+        }else{
+            datosProducto.append('update', 'OK');
+            datosProducto.append('id', id);
+            mensaje = "Modificación exitosa!";
+        }
+        
+
+        if(datosProducto.get('stock_min') < 0){
             notifacionError("El stock minimo no puede ser negativo!");
-        }else if(datosProducto.get('stockMaximo') < 0){
+        }else if(datosProducto.get('stock_max') < 0){
             notifacionError("El stock maximo no puede ser negativo!");
         }else{
-            console.log('Enviando datos ...');
-            guardarProducto(datosProducto);
+            try {
+                let peticion = await fetch('controllers/Producto_controller.php',{
+                    method : 'POST',
+                    body : datosProducto
+                });
+
+                let resjson = await peticion.json();
+
+                if(resjson.respuesta === "OK"){
+                    $("#modalProductos").modal('hide');
+                    notificacionExitosa(mensaje);
+                    tablaProductos.ajax.reload(null,false);
+                }else{
+                    notifacionError(resjson.respuesta);
+                }
+
+            } catch (error) {
+                console.log(error);
+            }
         }
     }
 })
 
-async function guardarProducto(datosProducto){
-    try {
-        
-        let peticion= await fetch('apis/apisProducto.php', {
-            method : 'POST',
-            body : datosProducto
-        })
-
-        let resjson = await peticion.json();
-
-        if(resjson.respuesta == "ALTA CORRECTA"){
-            document.getElementById('closeInsertProduct').click();
-            notificacionExitosa('ALTA CORRECTA!');
-        }else{
-            notifacionError(resjson.respuesta);
-        }
-
-    } catch (error) {
-        console.log(error)
-    }
-}
-
-/* ================================================================
-    Cuando se presiona el boton editar de la tabla pruductos
-  ================================================================= */
-$('.tablaProductos').on('click', '.btnEditar', async (e) =>{
-    console.log(e.target.id);
-
-    let idProduct = new FormData();
-    idProduct.append('idProduct', e.target.id);
-
-    try {
-
-        let peticion = await fetch('apis/apisProducto.php', {
-            method : 'POST',
-            body : idProduct
-        });
-
-        let resjson = await peticion.json();
-        console.log(resjson);
-
-        document.getElementById('nombreProducto').value = resjson.nombre;
-        document.getElementById('idselectCategoria').value = resjson.categoria;
-        document.getElementById('stockProducto').value = resjson.stock;
-        document.getElementById('stockMinimo').value = resjson.stock_min;
-        document.getElementById('stockMaximo').value = resjson.stock_max;
-        document.getElementById('precioVenta').value = resjson.precio_venta;
-        document.getElementById('precioCompra').value = resjson.precio_compra;
-        document.getElementById('observaciones').value = resjson.observaciones;
-
-        idProductoEdit = resjson.id_producto;
-
-    } catch (error) {
-        console.log(error);
-    }
+btnAgregarProducto.addEventListener('click', ()=>{
+    formProducto.reset();
+    opcion = 1;
+    tituloModal.innerHTML = "Alta de Producto";
+    btnFormProducto.innerText = "Guardar";
 });
 
-/* ==========================================================
-    Envento cuando se guardan los cambios de un producto
-  ============================================================*/
-formEditProduct.addEventListener('submit', (e) => {
-    e.preventDefault();
-    
-    // Filtro para verificar que selecciono una categoria
-    if(document.getElementById('idselectCategoria').value == "Seleccione una categoria"){
-        notifacionError("Selecciona una cateogoria!");
+$(document).on('click', '.btnEditar', function(){
+    opcion = 2;
+
+    if(tablaProductos.row(this).child.isShown()){
+        var data = tablaProductos.row(this).data();
     }else{
-        // Preparemos los datos
-        let datosProducto = new FormData(formEditProduct);
-        datosProducto.append('editProduct', idProductoEdit);
-
-        if(datosProducto.get('stockProducto') < 0){
-            notifacionError("El stock no puede ser negativo!");
-        }else if(datosProducto.get('stockMinimo') < 0){
-            notifacionError("El stock minimo no puede ser negativo!");
-        }else if(datosProducto.get('stockMaximo') < 0){
-            notifacionError("El stock maximo no puede ser negativo!");
-        }else{
-            console.log('Enviando datos ...');
-            editarProducto(datosProducto);
-        }
+        var data = tablaProductos.row($(this).parents("tr")).data();
     }
-    
+
+    id = data['id_producto'];
+
+    tituloModal.innerHTML = "Modificando Producto";
+    btnFormProducto.innerText = "Guardar cambios";
+
+    selectCategoria.value = data['categoria'];
+    $("#nombre").val(data['nombre']);
+    $("#stock").val(data['stock']);
+    $("#stock_min").val(data['stock_min']);
+    $("#stock_max").val(data['stock_max']);
+    $("#precio_venta").val(data['precio_venta']);
+    $("#observaciones").val(data['observaciones']);
+
+    $("#modalProductos").modal('show');
 });
 
-async function editarProducto(datosProducto){
-    try {
-        
-        let peticion= await fetch('apis/apisProducto.php', {
+$(document).on('click', '.btnBorrar', async function(){
+
+    if(tablaProductos.row(this).child.isShown()){
+        var data = tablaProductos.row(this).data();
+    }else{
+        var data = tablaProductos.row($(this).parents("tr")).data();
+    }
+
+    const result = await Swal.fire({
+        title: '¿ESTA SEGURO DE ELIMINAR ESTE PRODUCTO?',
+        text: "Si no lo esta puede cancelar la acción!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#0275d8',
+        cancelButtonColor: '#d9534f',
+        confirmButtonText: 'Si, eliminar!'
+    });
+
+    if(result.value){
+        let datos = new FormData();
+        datos.append('delete', 'OK');
+        datos.append('id', data['id_producto']);
+
+        let peticion = await fetch('controllers/Producto_controller.php', {
             method : 'POST',
-            body : datosProducto
-        })
+            body : datos
+        });
 
         let resjson = await peticion.json();
 
-        if(resjson.respuesta == "MODIFICACION CORRECTA"){
-            document.getElementById('closeInsertProduct').click();
-            notificacionExitosa('MODIFICACIÓN CORRECTA!');
+        if(resjson.respuesta === "OK"){
+            notificacionExitosa('Eliminación exitosa');
+            tablaProductos.ajax.reload(null,false);
         }else{
-            notifacionError(resjson.respuesta);
+            notificarError(resjson.respuesta);
         }
-
-    } catch (error) {
-        console.log(error)
     }
-}
 
-$('.tablaProductos').on('click', '.btnBorrar', async (e) => {
-    try{
-        
-        const result = await Swal.fire({
-            title: '¿ESTA SEGURO DE ELIMINAR EL PRODUCTO?',
-            text: "Si no lo esta puede cancelar la acción!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, delete it!'
-        });
-
-        if(result.value){
-            const form = new FormData();
-            form.append('deleteProduct', e.target.id);
-            const eliminar = await fetch('apis/apisProducto.php', {
-                method : 'POST',
-                body : form
-            })
-
-            const resjson = await eliminar.json();
-            
-            if(resjson.respuesta == "ELIMINACION CORRECTA"){
-                notificacionExitosa('ELIMADO CORRECTAMENTE!');
-            }else{
-                notifacionError(resjson.respuesta);
-            }
-        }
-        
-    }catch(err){
-        console.log(err)
-    }
 });
-
 
 function notifacionError(mensaje){
     Swal.fire({
@@ -183,9 +207,9 @@ function notifacionError(mensaje){
 function notificacionExitosa(mensaje){
     Swal.fire(
         mensaje,
-        'You clicked the button!',
+        '',
         'success'
     ).then(result => {
-        document.getElementById('actualizarPaginaProductos').click();
+        
     });
 }
