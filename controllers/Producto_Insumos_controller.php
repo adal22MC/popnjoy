@@ -13,3 +13,11 @@
             }
         }
     }
+
+    if(isset($_POST['insumos'])){
+        if(isset($_SESSION['usuario'])){
+            $insumos = $_POST['insumos'];
+            $response = Producto_Insumos_model::renovarInsumos($insumos);
+            echo json_encode(['respuesta'=>$response]);
+        }
+    }
