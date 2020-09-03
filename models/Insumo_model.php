@@ -126,20 +126,20 @@
                 $conexion = new Conexion();
                 $con = $conexion->getConexion();
 
-                $query = $con->prepare("SELECT * FROM detalle_insumos WHERE disponible > 0 and precio_compra = ?");
+                $query = $con->prepare("SELECT * FROM detalle_insumos WHERE precio_compra = ?");
                 $query->execute([$pc]);
 
                 $precio = $query->fetch();
 
                 if($precio){
                     $total = $precio['stock'] + $cantidad;
-                    $query = $con->prepare("UPDATE detalle_insumos set stock = ?, disponible = ? WHERE cns = ?");
+                    $query = $con->prepare("UPDATE detalle_insumos set stock = ? WHERE cns = ?");
 
-                    $query->execute([$total,$total,$precio['cns']]);
+                    $query->execute([$total,$precio['cns']]);
                 }else{
-                    $query = $con->prepare("INSERT INTO detalle_insumos (id_insumo_di,stock,precio_compra,disponible) VALUES (?,?,?,?)");
+                    $query = $con->prepare("INSERT INTO detalle_insumos (id_insumo_di,stock,precio_compra) VALUES (?,?,?)");
 
-                    $query->execute([$id,$cantidad,$pc,$cantidad]);
+                    $query->execute([$id,$cantidad,$pc]);
                 }
 
                 if($query->rowCount() <= 0){
@@ -154,6 +154,62 @@
 
                 $query->execute([$stock,$id]);
 
+                $conexion->closeConexion();
+                $con = null;
+
+                return "OK";
+                
+            }catch(PDOException $e){
+                return $e->getMessage();
+            }
+        }
+
+        public static function subtractStock($id,$cantidad,$razon){
+            try{
+
+                $conexion = new Conexion();
+                $con = $conexion->getConexion();
+
+                $cantidadBackups = $cantidad;
+
+                $insumo = self::selectId($id);
+
+                if($insumo['stock'] < $cantidad){
+                    return "La cantidad es mayor al stock disponible";
+                }
+
+                // Seleccionamo el cns minimo
+                $query = $con->prepare("SELECT MIN(cns) as cns FROM detalle_insumos WHERE id_insumo_di = ?");
+                $query->execute([$id]);
+                $cns_min = $query->fetch();
+
+                $ban = true;
+                $cns = $cns_min['cns'];
+                while($ban){
+
+                    $query = $con->prepare("SELECT * FROM detalle_insumos WHERE cns = ?");
+                    $query->execute([$cns]);
+                    $insumo = $query->fetch();
+
+                    if($insumo['stock'] >= $cantidad){
+                        $disponible = $insumo['stock'] - $cantidad;
+                        $query = $con->prepare("UPDATE detalle_insumos set stock = ? WHERE cns = ?");
+                        $query->execute([$disponible,$insumo['cns']]);
+                        $ban = false;
+                    }else{
+                        $cantidad = $cantidad - $insumo['stock'];
+                        $query = $con->prepare("UPDATE detalle_insumos set stock = 0 WHERE cns = ?");
+                        $query->execute([$insumo['cns']]);
+                        $cns++;
+                    }
+
+                }
+
+                $insumo = self::selectId($id);
+                $stock = $insumo['stock'] - $cantidadBackups;
+                $query = $con->prepare("UPDATE insumos set stock = ? WHERE id_insumo = ?");
+                $query->execute([$stock,$id]);
+                
                 $conexion->closeConexion();
                 $con = null;
 

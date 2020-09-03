@@ -85,7 +85,7 @@
             }
         }
     }
-
+    
     if(isset($_POST['addStock'])){
         if(isset($_SESSION['usuario'])){
 
@@ -99,6 +99,27 @@
                     echo json_encode(['respuesta'=>$response]);
                 }else{
                     echo json_encode(['respuesta'=>'La cantidad a aumentar no puede ser 0']);
+                }
+                   
+            }else{
+                echo json_encode(['respuesta'=>'Por favor verifica los caracteres incluidos.']);
+            }
+        }
+    }
+
+    if(isset($_POST['subtractStock'])){
+        if(isset($_SESSION['usuario'])){
+
+            if(
+                preg_match('/^[()\-0-9 ]+$/', $_POST['cantidad']) &&
+                preg_match('/^[()\-0-9 ]+$/', $_POST['id']) &&
+                preg_match('/^[a-zA-Z0-9ñÑáéíóúÁÉÍÓÚ ]+$/', $_POST['razon'])
+            ){
+                if($_POST['cantidad'] > 0){
+                    $response = Insumo_model::subtractStock($_POST['id'],$_POST['cantidad'],$_POST['razon']);
+                    echo json_encode(['respuesta'=>$response]);
+                }else{
+                    echo json_encode(['respuesta'=>'La cantidad a descontar no puede ser 0']);
                 }
                    
             }else{

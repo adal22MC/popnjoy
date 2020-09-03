@@ -22,7 +22,7 @@ var btnFormStock = document.getElementById('btnFormStock');
 // Boton form del modal
 var btnFormInsumos = document.getElementById('btnFormInsumos');
 
-// Variable opcion, insert => 1, update 2
+// Variable opcion, insert => 1, update 2, agregarStock => 1, descontarStock => 2
 var opcion;
 
 // Id del producto
@@ -171,6 +171,9 @@ $(document).on('click', '.btnBorrar', async function(){
 });
 
 $(document).on('click', '.btnAgregarStock', function(){
+
+    opcion = 1;
+
     if(tablaInsumos.row(this).child.isShown()){
         var data = tablaInsumos.row(this).data();
     }else{
@@ -179,9 +182,11 @@ $(document).on('click', '.btnAgregarStock', function(){
 
     let razon_descuento = document.getElementById('entrada_razon_descuento');
     razon_descuento.setAttribute('style','display :none;');
+    document.getElementById('razon').removeAttribute('required');
 
     let precio_compra = document.getElementById('entrada_precio_compra');
     precio_compra.removeAttribute('style');
+    precio_compra.setAttribute('required', true);
 
     tituloModalStock.innerText = "Aumentando Stock";
     btnFormStock.innerText = "Aumentar Stock";
@@ -192,6 +197,9 @@ $(document).on('click', '.btnAgregarStock', function(){
 });
 
 $(document).on('click', '.btnBajarStock', function(){
+
+    opcion = 2;
+
     if(tablaInsumos.row(this).child.isShown()){
         var data = tablaInsumos.row(this).data();
     }else{
@@ -200,9 +208,11 @@ $(document).on('click', '.btnBajarStock', function(){
 
     let razon_descuento = document.getElementById('entrada_razon_descuento');
     razon_descuento.removeAttribute('style');
+    
 
     let precio_compra = document.getElementById('entrada_precio_compra');
     precio_compra.setAttribute('style', 'display : none;');
+    document.getElementById('precio_compra').removeAttribute('required');
 
     tituloModalStock.innerText = "Descontando Stock";
     btnFormStock.innerText = "Descontar";
@@ -217,8 +227,19 @@ formStock.addEventListener('submit', async (e) => {
     try {
         // Preparemos los datos
         let datosProducto = new FormData(formStock);
-        datosProducto.append('addStock', 'OK');
         datosProducto.append('id', id);
+
+        let mensaje = "";
+        if(opcion == 1){
+            datosProducto.append('addStock', 'OK');
+            //datosProducto.append('precio_compra', $("#precio_compra").val());
+            //datosProducto.append('cantidad', $("#cantidad").val());
+            mensaje = "Operación exitosa, su stock a aumentado!"
+        }else if(opcion == 2){
+            datosProducto.append('subtractStock', 'OK');
+            mensaje = "Operación exitosa, su stock a disminuido!"
+        }
+        
 
         let peticion = await fetch('controllers/Insumo_controller.php',{
             method : 'POST',
@@ -228,8 +249,8 @@ formStock.addEventListener('submit', async (e) => {
         let resjson = await peticion.json();
 
         if(resjson.respuesta === "OK"){
-            $("#modalAgregarStock").modal('hide');
-            notificacionExitosa('Operación exitosa, su stock a aumentado!');
+            $("#modalStock").modal('hide');
+            notificacionExitosa(mensaje);
             tablaInsumos.ajax.reload(null,false);
         }else{
             notifacarError(resjson.respuesta);

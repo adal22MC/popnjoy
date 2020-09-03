@@ -62,7 +62,6 @@ CREATE TABLE detalle_productos(
   id_producto_dp int NOT NULL,
   stock int NOT NULL,
   precio_compra float NOT NULL,
-  disponible int NOT NULL,
   FOREIGN KEY (id_producto_dp) REFERENCES productos(id_producto),
   PRIMARY KEY (cns,id_producto_dp)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
@@ -84,9 +83,19 @@ CREATE TABLE detalle_insumos(
   id_insumo_di int NOT NULL,
   stock float NOT NULL,
   precio_compra float NOT NULL,
-  disponible int NOT NULL, 
   FOREIGN KEY (id_insumo_di) REFERENCES insumos (id_insumo),
   PRIMARY KEY (cns,id_insumo_di)
+
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
+
+CREATE TABLE insumo_descuentos(
+
+  id_descuento int NOT NULL AUTO_INCREMENT,
+  id_insumo_id int NOT NULL,
+  cantidad int NOT NULL,
+  razon text COLLATE utf8_spanish_ci NOT NULL,
+  FOREIGN KEY (id_insumo_id) REFERENCES insumos(id_insumo),
+  PRIMARY KEY (id_descuento)
 
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
