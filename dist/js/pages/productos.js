@@ -127,7 +127,7 @@ formProducto.addEventListener('submit', async (e) => {
 btnAgregarProducto.addEventListener('click', ()=>{
     formProducto.reset();
     opcion = 1;
-    tituloModal.innerHTML = "Alta de Producto";
+    tituloModal.innerHTML = "Creación de Producto";
     btnFormProducto.innerText = "Guardar";
 });
 
