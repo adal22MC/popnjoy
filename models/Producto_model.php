@@ -223,4 +223,25 @@
             }
         }
 
+        public static function selectInsumos($id){
+            try{
+
+                $conexion = new Conexion();
+                $con = $conexion->getConexion();
+
+                $query = $con->prepare("SELECT pi.producto, i.id_insumo, i.nombre, pi.cantidad FROM producto_insumos pi, insumos i WHERE i.id_insumo = pi.insumo and pi.producto = ?");
+                $query->execute([$id]);
+
+                $producto = $query->fetchAll();
+
+                $conexion->closeConexion();
+                $con = null;
+
+                return $producto;                
+
+            }catch(PDOException $e){
+                return $e->getMessage();
+            }
+        }
+
     }

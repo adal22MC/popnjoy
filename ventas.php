@@ -5,9 +5,6 @@
     header('Location: index.php');
   }
 
-  //include("models/ventas_modelo.php");
-  include("models/producto_modelo.php");
-  //include("models/cliente_modelo.php");
 ?>
 
 <!DOCTYPE html>
@@ -102,7 +99,7 @@
 
                               <tbody>
                                 <?php
-                                    ModeloProducto::llenarTablaProductosVenta();
+                                   // ModeloProducto::llenarTablaProductosVenta();
                                 ?>
                               </tbody>
 
@@ -250,7 +247,7 @@
 
                                   <tbody>
                                     <?php
-                                        ModeloProducto::llenarTablaHistorialVentas();
+                                        //ModeloProducto::llenarTablaHistorialVentas();
                                     ?>
                                   </tbody>
 

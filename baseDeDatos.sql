@@ -114,6 +114,7 @@ CREATE TABLE insumo_descuentos(
 CREATE TABLE producto_insumos(
   producto int NOT NULL,
   insumo int NOT NULL,
+  cantidad int NOT NULL,
   FOREIGN KEY (producto) REFERENCES productos (id_producto),
   FOREIGN KEY (insumo) REFERENCES insumos (id_insumo),
   PRIMARY KEY (producto, insumo)

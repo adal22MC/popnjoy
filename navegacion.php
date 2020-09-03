@@ -82,6 +82,16 @@
                         </a>
                     </li>
 
+                    <!-- PRODUCTO_INSUMOS -->
+                    <li class="nav-item">
+                        <a href="producto_insumos.php" class="nav-link">
+                            <i class="nav-icon fab fa-product-hunt"></i>
+                            <p>
+                                PRODUCTO-INSUMO
+                            </p>
+                        </a>
+                    </li>
+
                      <!-- VENTAS -->
                     <li class="nav-item has-treeview menu-close">
                         <a href="#" class="nav-link">
