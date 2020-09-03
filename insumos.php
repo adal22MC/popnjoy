@@ -1,9 +1,9 @@
 <?php
-  session_start();
-  if(!isset($_SESSION['usuario'])){
+session_start();
+if (!isset($_SESSION['usuario'])) {
     header('Location: index.php');
-  }
-  
+}
+
 ?>
 
 
@@ -11,7 +11,7 @@
 <html lang="es">
 
 <head>
-  <?php include('cabezera.php'); ?>
+    <?php include('cabezera.php'); ?>
 </head>
 
 <body class="hold-transition sidebar-mini layout-fixed">
@@ -21,151 +21,231 @@
     <!-- Content Wrapper. Contains page content -->
     <div class="content-wrapper">
 
-      <!-- TABLA INSUMOS -->
-      <div class="container-fluid pt-4">
-        <div class="row">
-          <div class="col-12">
+        <!-- TABLA INSUMOS -->
+        <div class="container-fluid pt-4">
+            <div class="row">
+                <div class="col-12">
 
-            <div class="card">
-              <div class="card-header">
+                    <div class="card">
+                        <div class="card-header">
 
-                <button id="btnAgregarInsumo" class="btn btn-outline-primary" data-toggle="modal" data-target="#modalInsumos">
-                  Agregar un nuevo Insumo
-                </button>
-                
-              </div>
-              <!-- /.card-header -->
-              <div class="card-body">
-                <table id="tablaInsumos" class="table table-bordered table-striped">
-                  <thead>
-                    <tr>
-                      <th>ID Insumo</th>
-                      <th>Insumo</th>
-                      <th>Stock</th>
-                      <th>Stock min</th>
-                      <th>Stock max</th>
-                      <th>Unidad de medida</th>
-                      <th>Status</th>
-                      <th>Acciones</th>
-                    </tr>
-                  </thead>
+                            <button id="btnAgregarInsumo" class="btn btn-outline-primary" data-toggle="modal" data-target="#modalInsumos">
+                                Agregar un nuevo Insumo
+                            </button>
 
-                  <tbody>
-                  </tbody>
+                        </div>
+                        <!-- /.card-header -->
+                        <div class="card-body">
+                            <table id="tablaInsumos" class="table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>ID Insumo</th>
+                                        <th>Insumo</th>
+                                        <th>Stock</th>
+                                        <th>Stock min</th>
+                                        <th>Stock max</th>
+                                        <th>Unidad de medida</th>
+                                        <th>Status</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
 
-                </table>
-              </div>
-              <!-- /.card-body -->
+                                <tbody>
+                                </tbody>
+
+                            </table>
+                        </div>
+                        <!-- /.card-body -->
+                    </div>
+                    <!-- /.card -->
+
+                </div>
+                <!-- /.col -->
             </div>
-            <!-- /.card -->
-
-          </div>
-          <!-- /.col -->
+            <!-- /.row -->
         </div>
-        <!-- /.row -->
-      </div>
-      <!-- /. TABLA INSUMOS -->
-      </section>
+        <!-- /. TABLA INSUMOS -->
+        </section>
 
-      <!-- /.content -->
+        <!-- /.content -->
     </div>
 
 
-  <!--=====================================
+    <!--=====================================
   MODAL AGREGAR INSUMO
   ======================================-->
 
-  <div id="modalInsumos" class="modal fade" role="dialog">
+    <div id="modalInsumos" class="modal fade" role="dialog">
 
-    <div class="modal-dialog">
+        <div class="modal-dialog">
 
-      <div class="modal-content">
+            <div class="modal-content">
 
-        <form id="formInsumos">
+                <form id="formInsumos">
 
-          <!--=====================================
+                    <!--=====================================
               HEADER DEL MODAL
           ======================================-->
 
-          <div class="modal-header">
-            <h5 class="modal-title" id="tituloModal">Nuevo Insumo</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="tituloModal">Nuevo Insumo</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
 
-          <!--=====================================
+                    <!--=====================================
           CUERPO DEL MODAL
           ======================================-->
 
-          <div class="modal-body">
+                    <div class="modal-body">
 
-            <div class="box-body">
+                        <div class="box-body">
 
-              <!-- ENTRADA PARA EL NOMBRE -->
-              <div class="input-group pt-3">
-                <div class="input-group-prepend">
-                  <span class="input-group-text">
-                    <i class="fas fa-info"></i>
-                  </span>
-                </div>
-                <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Nombre del insumo" required>
-              </div>
+                            <!-- ENTRADA PARA EL NOMBRE -->
+                            <div class="input-group pt-3">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-info"></i>
+                                    </span>
+                                </div>
+                                <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Nombre del insumo" required>
+                            </div>
 
-              <!-- ENTRADA PARA EL STOCK MINIMO -->
-              <div class="input-group pt-3">
-                <div class="input-group-prepend">
-                  <span class="input-group-text">
-                    <i class="fas fa-battery-quarter"></i>
-                  </span>
-                </div>
-                <input type="number" class="form-control" id="stock_min" name="stock_min" placeholder="Stock minimo" required>
-              </div>
+                            <!-- ENTRADA PARA EL STOCK MINIMO -->
+                            <div class="input-group pt-3">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-battery-quarter"></i>
+                                    </span>
+                                </div>
+                                <input type="number" class="form-control" id="stock_min" name="stock_min" placeholder="Stock minimo" required>
+                            </div>
 
-              <!-- ENTRADA PARA EL STOCK MAXIMO -->
-              <div class="input-group pt-3">
-                <div class="input-group-prepend">
-                  <span class="input-group-text">
-                    <i class="fas fa-battery-full"></i>
-                  </span>
-                </div>
-                <input type="number" class="form-control" id="stock_max" name="stock_max" placeholder="Stock maximo" required>
-              </div>
+                            <!-- ENTRADA PARA EL STOCK MAXIMO -->
+                            <div class="input-group pt-3">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-battery-full"></i>
+                                    </span>
+                                </div>
+                                <input type="number" class="form-control" id="stock_max" name="stock_max" placeholder="Stock maximo" required>
+                            </div>
 
-              <!-- ENTRADA PARA LA UNIDAD DE MEDIDA -->
-              <div class="input-group pt-3">
-                <div class="input-group-prepend">
-                  <span class="input-group-text">
-                    <i class="fas fa-balance-scale-right"></i>
-                  </span>
-                </div>
-                <input type="text" class="form-control" id="unidad_medida" name="unidad_medida" placeholder="Unidad de medida" required>
-              </div>
+                            <!-- ENTRADA PARA LA UNIDAD DE MEDIDA -->
+                            <div class="input-group pt-3">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-balance-scale-right"></i>
+                                    </span>
+                                </div>
+                                <input type="text" class="form-control" id="unidad_medida" name="unidad_medida" placeholder="Unidad de medida" required>
+                            </div>
 
-            </div>
+                        </div>
 
-          </div>
+                    </div>
 
-          <!--=====================================
+                    <!--=====================================
           PIE DEL MODAL
           ======================================-->
 
-          <div class="modal-footer">
-            <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Cancelar</button>
-            <button id="btnFormInsumos" type="submit" class="btn btn-primary">
-                Agregar Insumo
-            </button>
-          </div>
-        </form>
-      </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Cancelar</button>
+                        <button id="btnFormInsumos" type="submit" class="btn btn-primary">
+                            Agregar Insumo
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <!-- ./wrapper -->
+    <!--=====================================
+    MODAL AGREGAR STOCK
+    ======================================-->
 
-  <?php include('scripts.php'); ?>
-  <script src="dist/js/pages/insumos.js"></script>
-  
+    <div id="modalStock" class="modal fade" role="dialog">
+
+        <div class="modal-dialog">
+
+            <div class="modal-content">
+
+                <form id="formStock">
+
+                    <!--=====================================
+                        HEADER DEL MODAL
+                    ======================================-->
+
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="tituloModalStock">Aumentando Stock</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+
+                    <!--=====================================
+                    CUERPO DEL MODAL
+                    ======================================-->
+
+                    <div class="modal-body">
+
+                        <div class="box-body">
+
+                            <!-- ENTRADA PARA LA CANTIDAD -->
+                            <div class="input-group pt-3">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-cubes"></i>
+                                    </span>
+                                </div>
+                                <input type="number" class="form-control" id="cantidad" name="cantidad" placeholder="Cantidad" required>
+                            </div>
+
+                            <!-- ENTRADA PARA EL PRECIO DE COMPRA -->
+                            <div id="entrada_precio_compra" class="input-group pt-3">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-dollar-sign"></i>
+                                    </span>
+                                </div>
+                                <input type="text" class="form-control" id="precio_compra" name="precio_compra" placeholder="Precio de compra" required>
+                            </div>
+
+                            <!-- ENTRADA PARA LA RAZON DEL DESCUENTO DE STOCK -->
+                            <div id="entrada_razon_descuento" class="input-group pt-3">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-dollar-sign"></i>
+                                    </span>
+                                </div>
+                                <textarea class="form-control" name="razon" id="razon" cols="30" rows="3" placeholder="Razón del descuento" required></textarea>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!--=====================================
+                    PIE DEL MODAL
+                    ======================================-->
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Cancelar</button>
+                        <button id="btnFormStock" type="submit" class="btn btn-primary">
+                            Sumar al Stock
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ./wrapper -->
+
+    <?php include('scripts.php'); ?>
+    <script src="dist/js/pages/insumos.js"></script>
+
 </body>
 
 

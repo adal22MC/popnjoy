@@ -84,7 +84,7 @@ CREATE TABLE detalle_insumos(
   id_insumo_di int NOT NULL,
   stock float NOT NULL,
   precio_compra float NOT NULL,
-  diponible int NOT NULL, 
+  disponible int NOT NULL, 
   FOREIGN KEY (id_insumo_di) REFERENCES insumos (id_insumo),
   PRIMARY KEY (cns,id_insumo_di)
 

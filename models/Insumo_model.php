@@ -120,4 +120,69 @@
             }
         }
 
+        public static function addStock($id,$cantidad,$pc){
+            try{
+
+                $conexion = new Conexion();
+                $con = $conexion->getConexion();
+
+                $query = $con->prepare("SELECT * FROM detalle_insumos WHERE disponible > 0 and precio_compra = ?");
+                $query->execute([$pc]);
+
+                $precio = $query->fetch();
+
+                if($precio){
+                    $total = $precio['stock'] + $cantidad;
+                    $query = $con->prepare("UPDATE detalle_insumos set stock = ?, disponible = ? WHERE cns = ?");
+
+                    $query->execute([$total,$total,$precio['cns']]);
+                }else{
+                    $query = $con->prepare("INSERT INTO detalle_insumos (id_insumo_di,stock,precio_compra,disponible) VALUES (?,?,?,?)");
+
+                    $query->execute([$id,$cantidad,$pc,$cantidad]);
+                }
+
+                if($query->rowCount() <= 0){
+                    return "Ha ocurrido un error";
+                }
+
+                $insumo = self::selectId($id);
+
+                $stock = $insumo['stock'] + $cantidad;
+
+                $query = $con->prepare("UPDATE insumos set stock = ? WHERE id_insumo = ?");
+
+                $query->execute([$stock,$id]);
+
+                $conexion->closeConexion();
+                $con = null;
+
+                return "OK";
+                
+            }catch(PDOException $e){
+                return $e->getMessage();
+            }
+        }
+
+        public static function selectId($id){
+            try{
+
+                $conexion = new Conexion();
+                $con = $conexion->getConexion();
+
+                $query = $con->prepare("SELECT * FROM insumos WHERE status = 1 and id_insumo = ?");
+                $query->execute([$id]);
+
+                $insumo = $query->fetch();
+
+                $conexion->closeConexion();
+                $con = null;
+
+                return $insumo;                
+
+            }catch(PDOException $e){
+                return $e->getMessage();
+            }
+        }
+
     }
