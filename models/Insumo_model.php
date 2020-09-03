@@ -205,11 +205,16 @@
 
                 }
 
+                // Actualizamos el stock
                 $insumo = self::selectId($id);
                 $stock = $insumo['stock'] - $cantidadBackups;
                 $query = $con->prepare("UPDATE insumos set stock = ? WHERE id_insumo = ?");
                 $query->execute([$stock,$id]);
-                
+
+                // Insertamos en la tabla insumo_descuentos
+                $query = $con->prepare("INSERT INTO insumo_descuentos (id_insumo_id,cantidad,razon) VALUES (?,?,?)");
+                $query->execute([$id,$cantidadBackups,$razon]);
+
                 $conexion->closeConexion();
                 $con = null;
 

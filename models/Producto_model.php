@@ -97,4 +97,130 @@
             }
         }
 
+        public static function addStock($id,$cantidad,$pc){
+            try{
+
+                $conexion = new Conexion();
+                $con = $conexion->getConexion();
+
+                $query = $con->prepare("SELECT * FROM detalle_productos WHERE precio_compra = ?");
+                $query->execute([$pc]);
+
+                $precio = $query->fetch();
+
+                if($precio){
+                    $total = $precio['stock'] + $cantidad;
+                    $query = $con->prepare("UPDATE detalle_productos set stock = ? WHERE cns = ?");
+
+                    $query->execute([$total,$precio['cns']]);
+                }else{
+                    $query = $con->prepare("INSERT INTO detalle_productos (id_producto_dp,stock,precio_compra) VALUES (?,?,?)");
+
+                    $query->execute([$id,$cantidad,$pc]);
+                }
+
+                if($query->rowCount() <= 0){
+                    return "Ha ocurrido un error";
+                }
+
+                $producto = self::selectId($id);
+
+                $stock = $producto['stock'] + $cantidad;
+
+                $query = $con->prepare("UPDATE productos set stock = ? WHERE id_producto = ?");
+
+                $query->execute([$stock,$id]);
+
+                $conexion->closeConexion();
+                $con = null;
+
+                return "OK";
+                
+            }catch(PDOException $e){
+                return $e->getMessage();
+            }
+        }
+
+        public static function subtractStock($id,$cantidad,$razon){
+            try{
+
+                $conexion = new Conexion();
+                $con = $conexion->getConexion();
+
+                $cantidadBackups = $cantidad;
+
+                $producto = self::selectId($id);
+
+                if($producto['stock'] < $cantidad){
+                    return "La cantidad es mayor al stock disponible";
+                }
+
+                // Seleccionamo el cns minimo
+                $query = $con->prepare("SELECT MIN(cns) as cns FROM detalle_productos WHERE id_producto_dp = ?");
+                $query->execute([$id]);
+                $cns_min = $query->fetch();
+
+                $ban = true;
+                $cns = $cns_min['cns'];
+                while($ban){
+
+                    $query = $con->prepare("SELECT * FROM detalle_productos WHERE cns = ?");
+                    $query->execute([$cns]);
+                    $producto = $query->fetch();
+
+                    if($producto['stock'] >= $cantidad){
+                        $disponible = $producto['stock'] - $cantidad;
+                        $query = $con->prepare("UPDATE detalle_productos set stock = ? WHERE cns = ?");
+                        $query->execute([$disponible,$producto['cns']]);
+                        $ban = false;
+                    }else{
+                        $cantidad = $cantidad - $producto['stock'];
+                        $query = $con->prepare("UPDATE detalle_productos set stock = 0 WHERE cns = ?");
+                        $query->execute([$producto['cns']]);
+                        $cns++;
+                    }
+
+                }
+
+                // Actualizamos el stock
+                $producto = self::selectId($id);
+                $stock = $producto['stock'] - $cantidadBackups;
+                $query = $con->prepare("UPDATE productos set stock = ? WHERE id_producto = ?");
+                $query->execute([$stock,$id]);
+
+                // Insertamos en la tabla insumo_descuentos
+                $query = $con->prepare("INSERT INTO producto_descuentos (id_producto_pd,cantidad,razon) VALUES (?,?,?)");
+                $query->execute([$id,$cantidadBackups,$razon]);
+
+                $conexion->closeConexion();
+                $con = null;
+
+                return "OK";
+                
+            }catch(PDOException $e){
+                return $e->getMessage();
+            }
+        }
+
+        public static function selectId($id){
+            try{
+
+                $conexion = new Conexion();
+                $con = $conexion->getConexion();
+
+                $query = $con->prepare("SELECT * FROM productos WHERE status = 1 and id_producto = ?");
+                $query->execute([$id]);
+
+                $producto = $query->fetch();
+
+                $conexion->closeConexion();
+                $con = null;
+
+                return $producto;                
+
+            }catch(PDOException $e){
+                return $e->getMessage();
+            }
+        }
+
     }

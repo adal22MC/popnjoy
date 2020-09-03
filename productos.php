@@ -185,6 +185,86 @@
     </div>
   </div>
 
+  <!--=====================================
+    MODAL AGREGAR STOCK
+    ======================================-->
+
+    <div id="modalStock" class="modal fade" role="dialog">
+
+        <div class="modal-dialog">
+
+            <div class="modal-content">
+
+                <form id="formStock">
+
+                    <!--=====================================
+                        HEADER DEL MODAL
+                    ======================================-->
+
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="tituloModalStock">Aumentando Stock</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+
+                    <!--=====================================
+                    CUERPO DEL MODAL
+                    ======================================-->
+
+                    <div class="modal-body">
+
+                        <div class="box-body">
+
+                            <!-- ENTRADA PARA LA CANTIDAD -->
+                            <div class="input-group pt-3">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-cubes"></i>
+                                    </span>
+                                </div>
+                                <input type="number" class="form-control" id="cantidad" name="cantidad" placeholder="Cantidad" required>
+                            </div>
+
+                            <!-- ENTRADA PARA EL PRECIO DE COMPRA -->
+                            <div id="entrada_precio_compra" class="input-group pt-3">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-dollar-sign"></i>
+                                    </span>
+                                </div>
+                                <input type="text" class="form-control" id="precio_compra" name="precio_compra" placeholder="Precio de compra" required>
+                            </div>
+
+                            <!-- ENTRADA PARA LA RAZON DEL DESCUENTO DE STOCK -->
+                            <div id="entrada_razon_descuento" class="input-group pt-3">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-dollar-sign"></i>
+                                    </span>
+                                </div>
+                                <textarea class="form-control" name="razon" id="razon" cols="30" rows="3" placeholder="Razón del descuento" required></textarea>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!--=====================================
+                    PIE DEL MODAL
+                    ======================================-->
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Cancelar</button>
+                        <button id="btnFormStock" type="submit" class="btn btn-primary">
+                            Sumar al Stock
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
   <!-- ./wrapper -->
 
   <?php include('scripts.php'); ?>

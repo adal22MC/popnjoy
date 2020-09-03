@@ -4,14 +4,23 @@ var tablaProductos;
 // Select de categoria
 var selectCategoria = document.getElementById('selectCategoria');
 
-// Boton form del modal de productos
+// Form del modal de productos
 var formProducto = document.getElementById('formProducto');
+
+// Form del modal agregar stock
+var formStock = document.getElementById('formStock');
 
 // Boton agregar producto
 var btnAgregarProducto = document.getElementById('btnAgregarProducto');
 
 // Titulo del modal
 var tituloModal = document.getElementById('tituloModal');
+
+// Titulo modal Stock
+var tituloModalStock = document.getElementById('tituloModalStock');
+
+// Texto del botont form modal stock
+var btnFormStock = document.getElementById('btnFormStock');
 
 // Boton form del modal
 var btnFormProducto = document.getElementById('btnFormProducto');
@@ -45,7 +54,7 @@ function init(){
             {"data" : "observaciones"},
             {"data" : "status", "visible" : false},
             {"data" : "descripcion"},
-            {"defaultContent": "<div class='text-center'><div class='btn-group'><button class='btn btn-info btn-sm btnEditar'><i class='fas fa-edit'></i></button><button class='btn btn-danger btn-sm btnBorrar'><i class='fas fa-trash-alt'></i></button></div></div>"}
+            {"defaultContent": "<div class='text-center'><div class='btn-group'><button class='btn btn-info btn-sm btnEditar'><i class='fas fa-edit'></i></button><button class='btn btn-danger btn-sm btnBorrar'><i class='fas fa-trash-alt'></i></button><button class='btn btn-success btn-sm btnAgregarStock'><i class='fas fa-arrow-alt-circle-up'></i></button><button class='btn btn-danger btn-sm btnBajarStock'><i class='fas fa-arrow-alt-circle-down'></i></button></div></div>"}
         ]
     });
 
@@ -195,6 +204,97 @@ $(document).on('click', '.btnBorrar', async function(){
     }
 
 });
+
+$(document).on('click', '.btnAgregarStock', function(){
+
+    opcion = 1;
+
+    if(tablaProductos.row(this).child.isShown()){
+        var data = tablaProductos.row(this).data();
+    }else{
+        var data = tablaProductos.row($(this).parents("tr")).data();
+    }
+
+    let razon_descuento = document.getElementById('entrada_razon_descuento');
+    razon_descuento.setAttribute('style','display :none;');
+    document.getElementById('razon').removeAttribute('required');
+
+    let precio_compra = document.getElementById('entrada_precio_compra');
+    precio_compra.removeAttribute('style');
+    precio_compra.setAttribute('required', true);
+
+    tituloModalStock.innerText = "Aumentando Stock";
+    btnFormStock.innerText = "Aumentar Stock";
+
+    id = data['id_producto'];
+    formStock.reset();
+    $("#modalStock").modal('show');
+});
+
+$(document).on('click', '.btnBajarStock', function(){
+
+    opcion = 2;
+
+    if(tablaProductos.row(this).child.isShown()){
+        var data = tablaProductos.row(this).data();
+    }else{
+        var data = tablaProductos.row($(this).parents("tr")).data();
+    }
+
+    let razon_descuento = document.getElementById('entrada_razon_descuento');
+    razon_descuento.removeAttribute('style');
+    
+
+    let precio_compra = document.getElementById('entrada_precio_compra');
+    precio_compra.setAttribute('style', 'display : none;');
+    document.getElementById('precio_compra').removeAttribute('required');
+
+    tituloModalStock.innerText = "Descontando Stock";
+    btnFormStock.innerText = "Descontar";
+
+    id = data['id_producto'];
+    formStock.reset();
+    $("#modalStock").modal('show');
+});
+
+
+formStock.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    try {
+
+        // Preparemos los datos
+        let datosProducto = new FormData(formStock);
+        datosProducto.append('id', id);
+
+        let mensaje = "";
+        if(opcion == 1){
+            datosProducto.append('addStock', 'OK');
+            mensaje = "Operación exitosa, su stock a aumentado!"
+        }else if(opcion == 2){
+            datosProducto.append('subtractStock', 'OK');
+            mensaje = "Operación exitosa, su stock a disminuido!"
+        }
+        
+
+        let peticion = await fetch('controllers/Producto_controller.php',{
+            method : 'POST',
+            body : datosProducto
+        });
+
+        let resjson = await peticion.json();
+
+        if(resjson.respuesta === "OK"){
+            $("#modalStock").modal('hide');
+            notificacionExitosa(mensaje);
+            tablaProductos.ajax.reload(null,false);
+        }else{
+            notifacarError(resjson.respuesta);
+        }
+
+    } catch (error) {
+        console.log(error);
+    }
+}); 
 
 function notifacionError(mensaje){
     Swal.fire({

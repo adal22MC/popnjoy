@@ -66,6 +66,17 @@ CREATE TABLE detalle_productos(
   PRIMARY KEY (cns,id_producto_dp)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
+CREATE TABLE producto_descuentos(
+
+  id_descuento int NOT NULL AUTO_INCREMENT,
+  id_producto_pd int NOT NULL,
+  cantidad int NOT NULL,
+  razon text COLLATE utf8_spanish_ci NOT NULL,
+  FOREIGN KEY (id_producto_pd) REFERENCES productos(id_producto),
+  PRIMARY KEY (id_descuento)
+
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
+
 CREATE TABLE insumos(
   id_insumo int NOT NULL AUTO_INCREMENT,
   nombre text COLLATE utf8_spanish_ci NOT NULL,
