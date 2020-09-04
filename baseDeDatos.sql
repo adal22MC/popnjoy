@@ -22,7 +22,7 @@ CREATE TABLE clientes (
   telefono text COLLATE utf8_spanish_ci NOT NULL,
   direccion text COLLATE utf8_spanish_ci NOT NULL,
   porcentaje float NOT NULL,
-  status int NOT NULL,
+  status int NOT NULL DEFAULT 1,
   primary key(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
@@ -122,29 +122,41 @@ CREATE TABLE producto_insumos(
 
 -- TABLA VENTAS
 create table ventas(
-  idVenta int NOT NULL AUTO_INCREMENT, 
+  id_venta int NOT NULL AUTO_INCREMENT, 
   cliente int NOT NULL,
   fecha date DEFAULT CURRENT_DATE,
   hora time DEFAULT CURRENT_TIME,
-  totalVendido float NOT NULL,
+  total_endido float NOT NULL,
   ganancia float NOT NULL,
   FOREIGN KEY (cliente) REFERENCES clientes (id),
-  primary key(idVenta)
+  primary key(id_venta)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
+
+CREATE TABLE ventas_producto(
+  id_venta int NOT NULL,
+  id_producto int NOT NULL,
+  total float NOT NULL,
+  ganancia float NOT NULL,
+  FOREIGN KEY (id_venta) REFERENCES ventas(id_venta),
+  FOREIGN KEY (id_producto) REFERENCES productos(id_producto),
+  PRIMARY KEY (id_venta, id_producto)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
 -- DETALLE VENTA
 create table detalle_venta(
   cns int NOT NULL AUTO_INCREMENT,
-  idventa int NOT NULL,
-  producto int NOT NULL,
+  id_venta int NOT NULL,
+  id_producto int NOT NULL,
   cantidad int NOT NULL,
-  precio float NOT NULL, -- precio al que se vendio
-  total float NOT NULL, -- total de la venta
-  -- categoria text COLLATE utf8_spanish_ci NOT NULL,
-  -- codigo int NOT NULL,
-  FOREIGN KEY (producto) REFERENCES productos(id_producto),
-  FOREIGN KEY (idVenta) REFERENCES ventas (idVenta),
-  primary key(cns, idVenta)
+  precio_compra float NOT NULL, -- precio al que se vendio
+  precio_costo float NOT NULL,
+  total_compra float NOT NULL,
+  total_costo float NOT NULL,
+  ganancia float NOT NULL,
+  FOREIGN KEY (id_venta) REFERENCES ventas(id_venta),
+  FOREIGN KEY (id_producto) REFERENCES productos(id_producto),
+  PRIMARY KEY (cns,id_venta,id_producto)
+
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
 -- CIERRES DE DIA

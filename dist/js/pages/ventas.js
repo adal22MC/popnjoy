@@ -1,334 +1,223 @@
 const procesarVenta = document.getElementById('procesarVenta');
-const modalSelectClient = document.getElementById('formSeleccionarCliente');
+const generarVenta = document.getElementById('formSeleccionarCliente');
+const labelPagar = document.getElementById('labelTotal');
 
 /* Guardamos los datos de los productos que se van a vender */
-var idProductsVentas = [];
+var productos = [];
 var totalAPagar = 0;
 
+var selectCliente = document.getElementById('selectCliente');
 
+var tablaProductos;
 
-/* ========================================================
-   Funcion que pide datos del producto qeu se vendera
-   para posteriormente llamas a la funcion addProductVentas
-  ========================================================== */
-
-$('.tablaProductos').on('click', '.btnAdd', async (e) => {
-    e.preventDefault();
-
-    try {
-        
-        let idProduct = new FormData();
-            idProduct.append('idProduct', e.target.id);
-
-        let peticion = await fetch('apis/apisProducto.php', {
-            method : 'POST',
-            body : idProduct
-        })
-
-        let resjson = await peticion.json();
-        addProductListVentas(resjson);
-
-    } catch (error) {
-        console.log(error);
-    }
-    
-})
-
-
-/* =======================================================
-    Funcion que se encarga de agregar un producto a la 
-    lista de producto a vender
- =========================================================*/
-function addProductListVentas(product){
-
-    Swal.fire({
-        title: 'Ingresa la cantidad a vender',
-        input: 'text',
-        inputAttributes: {
-          autocapitalize: 'off'
+function init(){
+    tablaProductos = $("#tablaProductos").DataTable({
+        "responsive": true,
+        "autoWidth" : false,
+        "ajax" : {
+            "url" : "controllers/Producto_controller.php",
+            "type": "POST",
+            "data": {
+                "select" : "OK"
+            },
+            "dataSrc":""
         },
-        showCancelButton: true,
-        confirmButtonText: 'Agregar',
-    }).then( cantidad => {
-        if(cantidad.value){
-            let can = parseInt( cantidad.value );
-            let stock = parseInt( product.stock );
+        "columns" :[
+            {"data" : "id_producto"},
+            {"data" : "nombre"},
+            {"data" : "categoria", "visible" : false},
+            {"data" : "stock"},
+            {"data" : "stock_min", "visible" : false},
+            {"data" : "stock_max", "visible" : false},
+            {"data" : "precio_venta"},
+            {"data" : "observaciones", "visible" : false},
+            {"data" : "status", "visible" : false},
+            {"data" : "descripcion", "visible" : false},
+            {"defaultContent": "<div class='text-center'><div class='btn-group'><button class='btn btn-info btn-sm btnComprar'><i class='fas fa-reply'></i></button></div></div>"}
+        ]
+    });
+
+    $.ajax({
+        "url" : "controllers/Cliente_controller.php",
+        "dataType" : 'json',
+        "type": "POST",
+        "data": {
+            "select" : "OK"
+        },
+        success: function (data, textStatus, jqXHR) {
             
-            if(can <= stock){
+            for( let item of data ){
+                let option = document.createElement("option");
+                option.text = item.nombre;
+                option.value = item.id;
+                selectCliente.appendChild(option);     
+            }  
+            
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+            console.log(textStatus);
+        }
+    });
+}
 
-                /*  =====================================================
-                    Validamos si el usuario quiere agregar de nuevo
-                    el mismo producto
-                   ======================================================*/
+init();
+
+$(document).on('click', '.btnComprar', function(){
+
+    if(tablaProductos.row(this).child.isShown()){
+        var data = tablaProductos.row(this).data();
+    }else{
+        var data = tablaProductos.row($(this).parents("tr")).data();
+    }
+
+    if( validarProductoRepetido(data['id_producto']) == false ){
+        notificarError('Este producto ya se encuentra en la lista');
+    }else{
+
+        Swal.fire({
+            title: 'Cantidad',
+            input: 'number',
+            inputAttributes: {
+            autocapitalize: 'off'
+            },
+            showCancelButton: true,
+            confirmButtonText: 'Confirmar',
+        }).then( cantidad => {
+            if(cantidad.value){
                 
-                let ban = validarProductoRepetido(product);
-
-                if(ban == true){
-
-                    // Total por producto
-                    let totalPorProducto = can * product.precio_venta;
-
-                    $('.listProductVenta').find('tbody').append(`
+                if(cantidad.value <= 0){
+                    notificarError('Ingresa una cantidad valida');
+                }else if(cantidad.value > data['stock']){
+                    notificarError('No hay suficiente stock');
+                }else {
+                    let total = cantidad.value * parseFloat(data['precio_venta']);
+                    
+                    $('#tableListaProductos').find('tbody').append(`
                         <tr>
                             <td>
-                                <button class="btn btn-sm btn-danger btnEliminar" id="${product.id_producto}">ELIMINAR</button>
+                                <button class="btn btn-sm btn-danger">
+                                    <i id="${data['id_producto']}" class="fas fa-trash btnEliminar"></i>
+                                </button>
                             </td>
-                            <td>${product.nombre}</td>
-                            <td>${can}</td>
-                            <td>${totalPorProducto}</td>
+                            <td>${data['nombre']}</td>
+                            <td>${cantidad.value}</td>
+                            <td>${total}</td>
                         </tr>
                     `);
 
-                    // Agregamos el producto a nuestro objeto
-                    idProductsVentas.push({
-                        id : product.id_producto,
-                        cantidad : can,
-                        total : totalPorProducto
+                    // Agregamos el producto a nuestro objeto productos
+                    productos.push({
+                        producto : data['id_producto'],
+                        cantidad : cantidad.value,
+                        total 
                     });
 
-                    
-                    totalAPagar =  calcularTotalApagar() ;
-                    if( totalAPagar == 0){
-                        document.getElementById('totalApagar').innerHTML = '<b>Lista de productos a vender</b>';
-                    }else{
-                        document.getElementById('totalApagar').innerHTML = '<b>Total de la venta $ '+totalAPagar+'</b>';
-                    }
-                    
+                    totalAPagar = totalAPagar + total;
+                    labelPagar.innerText = "Total a pagar : " + totalAPagar;
 
-
-                }else{
-                    notificarError('¡Este producto ya esta agregado, si desea agregar más eliminado y agregalo de nuevo!');
                 }
-
-                console.log(idProductsVentas);
-            }else{
-                notificarError('¡No hay suficiente stock!');
             }
-        }
-    })  
-
-}
-
-
-/* =============================================================
-  Funcion que elimina el producto de la lista vender y del JSON
- =============================================================== */
-$('.listProductVenta').on('click', '.btnEliminar', (e) => {
-    console.log('Eliminando ...');
-
-    let pos = 0;
-    
-    for( let item of idProductsVentas){
-        if(item == undefined){}
-        else{
-            if( parseInt( item.id ) == parseInt( e.target.id ) ){
-                console.log('ENTRO A ELIMINAR');
-                delete idProductsVentas[pos];
-            }
-        }
-        pos = pos + 1;
+        });
     }
-    
 
+});
 
-    
-    console.log(e.target.id);
-    console.log(idProductsVentas);
-    e.target.parentNode.parentNode.remove();
+$(document).on('click', '.btnEliminar', function(e){
+    e.target.parentNode.parentNode.parentNode.remove();
+    deleteProducto(e.target.id);
+});
 
-
-    totalAPagar = calcularTotalApagar() ;
-    if( totalAPagar  == 0){
-        document.getElementById('totalApagar').innerHTML = '<b>Lista de productos a vender</b>';
-    }else{
-        document.getElementById('totalApagar').innerHTML = '<b>Total de la venta $ '+totalAPagar+'</b>';
+procesarVenta.addEventListener('click', function(){
+    let ban = validarListaVacia();
+    if(ban > 0){
+        limpiarLista();
+        $("#modalSeleccionarCliente").modal('show');
     }
 });
 
-function calcularTotalApagar(){
-    let total = 0;
+generarVenta.addEventListener('submit', (e)=>{
+    e.preventDefault();
+    if(selectCliente.value != "default"){
+        productos.unshift({
+            cliente : selectCliente.value
+        });
 
-    for(let item of idProductsVentas){
-        if(item == undefined){
+        $.ajax({
+            "url" : "controllers/Venta_controller.php",
+            "dataType" : 'json',
+            "type": "POST",
+            "data": {
+                "generarVenta" : productos
+            },
+            success: function (data, textStatus, jqXHR) {
+                
+                if(data.respuesta == "OK"){
+                    notificacionExitosa('Venta generada');
+                }else{
+                    notificarError(data.respuesta);
+                }
+                
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.log(textStatus);
+            }
+        });
+    }else{
+        notificarError('Selecciona un cliente');
+    }
+})
 
-        }else{
-            total = total + item.total ;
+function limpiarLista(){
+    let productosTemporal = [];
+    for(let item of productos){
+        if(item != undefined){
+            productosTemporal.push({
+                producto : item.producto,
+                cantidad : item.cantidad,
+                total : item.total
+            });
         }
     }
 
-    console.log('El total hasta ahora es ' + total)
-    return total;
+    productos = productosTemporal;
+    console.log(productos);
 }
 
-/* ==========================================================
-   Funcion que valida si al agregar otra vez un mismo producto
-   este tiene ya esta agregado
-  ===========================================================*/
+function validarListaVacia(){
+    let contador = 0;
+    for(let item of productos){
+        if(item != undefined){
+            contador++;
+        }
+    }
+    return contador;
+}
 
-function validarProductoRepetido(product){
+function deleteProducto(id){
+    let pos = 0;
+    for(let item of productos){
+        if(item != undefined){
+            if(parseInt(item.producto) == parseInt(id) ){
+                delete productos[pos];
+                totalAPagar = totalAPagar - item.total;
+                labelPagar.innerText = "Total a pagar : " + totalAPagar;
+                return 0;
+            }
+        }
+        pos++;
+    }
+}
 
-    let id = parseInt ( product.id_producto);
-    
-    for( let item of idProductsVentas){
-        if(item == undefined){}
-        else{
-            if( parseInt( item.id ) == id){
+function validarProductoRepetido(id){
+    for(let item of productos){
+        if(item != undefined){
+            if(parseInt(item.producto) == parseInt(id) ){
                 return false;
             }
         }
     }
-
     return true;
-
 }
-
-/* =================================================
-    Cuando se presiona el boton Procesar venta
- ===================================================*/
-
-procesarVenta.addEventListener('click', async (e) => {
-    let contador = 0;
-    // Validamos si por lo menos hay un producto en la lista
-    for(item of idProductsVentas){
-        if(item == undefined){}
-        else{
-            contador = contador + 1;
-        }
-    }
-
-
-    if(contador == 0){
-        notificarError('No has agregado productos a lista');
-    }else{
-    
-        /* LLenamos el select con los nombres delos clientes */
-        try {
-            let form = new FormData();
-            form.append('getAllClients', 'ok');
-
-            let peticion = await fetch('apis/apisCliente.php', {
-                method:'POST', 
-                body : form
-            })
-
-            let resjson = await peticion.json();
-            console.log(resjson);
-            llenarSelectClients(resjson);
-            
-
-        } catch (error) {
-            console.log(error);
-        }
-
-
-        // Hacemos visible el modal
-        $('#modalSeleccionarCliente').modal('show');
-
-     }
- })
-
-
- modalSelectClient.addEventListener('submit', async (e) => {
-     console.log("Se inicio el submit....")
-     e.preventDefault();
-
-     if(document.getElementById('selectCliente').value == "clienteDefault"){
-        notificarError('¡Selecciona un cliente!')
-     }else{
-        console.log('Procesando venta');
-        console.log(document.getElementById('selectCliente').value);
-
-
-        let listaVentas = [];
-
-        // Limpiamos la lista de ventas de los undefined
-        for(item of idProductsVentas){
-            if(item == undefined){}
-            else{
-                listaVentas.push({
-                    id : item.id,
-                    cantidad : item.cantidad,
-                    total : item.total
-                });
-            }
-        }
-
-
-        listaVentas.unshift({
-            idCliente : document.getElementById('selectCliente').value
-        })
-        
-
-        try {
-            
-            
-            let peticion = await fetch('apis/apisVenta.php', {
-                method:'POST', 
-                body : JSON.stringify(listaVentas),
-                headers : {
-                    'Content-Type' :  'application/json'
-                }
-            })
-
-            console.log('Datos en la lista');
-            console.log(listaVentas);
-            console.log('Respuesta del servidor ...');
-            let resjson = await peticion.json();
-
-            console.log(resjson);
-
-            if(resjson.respuesta == "BIEN"){
-                Swal.fire(
-                    'Venta Genereda',
-                    'Execelente',
-                    'success'
-                ).then( r => {
-                   window.location = "plantilla_pdf.php?idVenta="+resjson.idVenta;
-                })
-            }else{
-                notificarError(resjson.respuesta);
-            }
-
-        } catch (error) {
-            //console.log('Entro en este error');
-            console.log(error);
-        }
-        
-     }
-     
- })
-
-
-/* ================================================================
- Funcion que llena el select de clientes con todos los nombre
- de los clientes de la BD
-=======================================================================*/
-
-function llenarSelectClients(cliente){
-
-    var select = document.getElementById('selectCliente');
-
-    while(select.length > 0){
-        select.remove(0);
-    }
-
-    let optionDef = document.createElement('option');
-    optionDef.text = "Seleccione un cliente";
-    optionDef.value = "clienteDefault";
-    optionDef.selected;
-    select.add(optionDef);
-
-   // <option value="clienteDefault">Seleccione un cliente</option>
-
-    for(let item of cliente){
-        let option = document.createElement('option');
-        option.text = item.nombre;
-        option.value = item.id;
-        select.add(option);
-    }
-    
-}
-
 
 function notificarError(mensaje){
     Swal.fire({
@@ -337,3 +226,14 @@ function notificarError(mensaje){
         text: mensaje
     })
 }
+
+function notificacionExitosa(mensaje){
+    Swal.fire(
+        mensaje,
+        '',
+        'success'
+    ).then(result => {
+        
+    });
+}
+

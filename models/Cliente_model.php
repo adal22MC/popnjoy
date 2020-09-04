@@ -1,12 +1,56 @@
 <?php
 
-    include ('conexion.php');
+    require_once ('conexion.php');
 
-    class ModeloCliente{
+    class Cliente_model {
+
+        private static $SELECT = "SELECT * FROM clientes where status = 1";
 
         private static $INSERT_CLIENTE = "INSERT INTO clientes (nombre,tipo,email,telefono,direccion,porcentaje) VALUES (?,?,?,?,?,?)";
 
         private static $EDIT_CLIENT = "UPDATE clientes SET nombre=?, tipo=?, email=? ,telefono=?, direccion=?, porcentaje=? WHERE id = ?";
+
+        public static function select(){
+            try{
+
+                $conexion = new Conexion();
+                $con = $conexion->getConexion();
+                
+                $query = $con->prepare(self::$SELECT);
+                $query->execute();
+
+                $clientes = $query->fetchAll();
+
+                $conexion->closeConexion();
+                $con = null;
+                
+                return $clientes;
+
+            }catch(PDOException $e){
+                return $e->getMessage();
+            }
+        }
+
+        public static function selectId($id){
+            try{
+
+                $conexion = new Conexion();
+                $con = $conexion->getConexion();
+                
+                $query = $con->prepare("SELECT * FROM clientes WHERE status = 1 and id = ?");
+                $query->execute([$id]);
+
+                $cliente = $query->fetch();
+
+                $conexion->closeConexion();
+                $con = null;
+                
+                return $cliente;
+
+            }catch(PDOException $e){
+                return $e->getMessage();
+            }
+        }
 
         public static function llenarTablaClientes(){
             $conexion = new Conexion();
@@ -102,21 +146,6 @@
             }
         }
 
-        public static function getAllClients(){
-            try{
-                $conexion = new Conexion();
-                $con = $conexion->getConexion();
-
-                $pst = $con->prepare("SELECT * FROM clientes");
-                $pst->execute();
-
-                $datosClientes = $pst->fetchAll();
-                return $datosClientes;
-            }catch(PDOException $e){
-                return $e->getMessage();
-            }
-        }
-
         public static function llenarSelectClienteVentas(){
             $conexion = new Conexion();
             $con = $conexion->getConexion();
@@ -139,6 +168,5 @@
         }
     }
 
-    //ModeloCliente::addCliente('nombre', 'empresa', 'email@email.com', '7897897', 'Tapa', '0');
+    
 
-?>

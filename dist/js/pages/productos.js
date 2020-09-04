@@ -288,7 +288,7 @@ formStock.addEventListener('submit', async (e) => {
             notificacionExitosa(mensaje);
             tablaProductos.ajax.reload(null,false);
         }else{
-            notifacarError(resjson.respuesta);
+            notifacionError(resjson.respuesta);
         }
 
     } catch (error) {

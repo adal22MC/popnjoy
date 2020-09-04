@@ -1,50 +1,12 @@
 <?php
 
-require_once('conexion.php');
+require_once ("conexion.php");
+require_once ("Cliente_model.php");
+require_once ("Producto_model.php");
 
-class ModeloVentas{
+class Venta_model {
 
     private $totalVenta = 0;
-
-
-    // Este metodo no se usa
-    public static function llenarTablaVentas(){
-        try{
-
-            $conexion = new Conexion();
-            $con = $conexion->getConexion();
-
-            $pst = $con->prepare("SELECT * FROM ventas");
-            $pst->execute();
-
-            $datos = $pst->fetchAll();
-
-            foreach($datos as $row){
-                echo '
-                    <tr>
-                        <td>'.$row['idVenta'].'</td>
-                        <td>'.$row['cliente'].'</td>
-                        <td>'.$row['fecha'] . $row['hora'].'</td>
-                        <td>'.$row['totalVendido'].'</td>
-                        <td>
-                            <div class="text-center">
-                                <button class="btn btn-danger btnBorrar" id='.$row['idVenta'].' >
-                                <i class="fas fa-trash-alt" id="'.$row['idVenta'].'"></i>
-                                </button>
-                            
-                                <button class="btn btn-info btnEditar" data-toggle="modal" data-target="#modalEditarSucursal" id="'.$row['idVenta'].'">
-                                    <i class="fas fa-edit" id="'.$row['idVenta'].'"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                ';
-            }
-
-        }catch(PDOException $e){
-            return $e->getMessage();
-        }
-    }
 
     public static function llenarTablaVentasDia(){
         try{
@@ -74,34 +36,29 @@ class ModeloVentas{
         }
     }
 
-    public static function insertVentas($ventas){
+    public static function insert($venta){
         try{
 
-            // Consultamos el nombre del cliente
-            $clienteDatos = self::getDatosCliente($ventas[0]->idCliente);
-            $totalVenta = self::calcularTotalVenta($ventas);
-
-            
-            $conexion = new Conexion();
-            $con = $conexion->getConexion();
-            
-            
-            $pst = $con->prepare(("INSERT INTO ventas (cliente,totalVendido) VALUES (?,?)"));
-            $pst->execute([$clienteDatos['nombre'],$totalVenta]);
-
-            // SELECT MAX(idVenta) from ventas
-            $pst = $con->prepare("SELECT MAX(idVenta) as idVenta from ventas");
-            $pst->execute();
-            $idVenta = $pst->fetch();
-
-            $res = self::insertDetalleVenta($idVenta['idVenta'],$ventas);
-
-            
-            return ['respuesta'=>'BIEN', 'idVenta'=>$idVenta['idVenta']];
+            $ban = self::verificarVenta($venta);
+            if($ban){
+                
+            }else{
+                return "Algunos productos tienen stock insuficiente";
+            }
 
         }catch(PDOException $e){
             print_r($e->getMessage());
         }
+    }
+
+    public static function verificarVenta($venta){
+        for($i=1; $i<count($venta); $i++){
+            $producto = Producto_model::selectId($venta[$i]['producto']);
+            if($producto['stock'] < $venta[$i]['cantidad']){
+                return false;
+            }
+        }
+        return true;
     }
 
     public static function getDatosCliente($id){

@@ -1,6 +1,7 @@
 <?php
 
     require_once ('conexion.php');
+    require_once ("Insumo_model.php");
 
     class Producto_model {
 
@@ -100,41 +101,86 @@
         public static function addStock($id,$cantidad,$pc){
             try{
 
-                $conexion = new Conexion();
-                $con = $conexion->getConexion();
+                $ban = self::verificarInsumosDisponibles($id,$cantidad);
+                
+                if($ban){
 
-                $query = $con->prepare("SELECT * FROM detalle_productos WHERE precio_compra = ?");
-                $query->execute([$pc]);
+                    $conexion = new Conexion();
+                    $con = $conexion->getConexion();
 
-                $precio = $query->fetch();
+                    $query = $con->prepare("SELECT * FROM detalle_productos WHERE precio_compra = ?");
+                    $query->execute([$pc]);
 
-                if($precio){
-                    $total = $precio['stock'] + $cantidad;
-                    $query = $con->prepare("UPDATE detalle_productos set stock = ? WHERE cns = ?");
+                    $precio = $query->fetch();
 
-                    $query->execute([$total,$precio['cns']]);
+                    if($precio){
+                        $total = $precio['stock'] + $cantidad;
+                        $query = $con->prepare("UPDATE detalle_productos set stock = ? WHERE cns = ?");
+
+                        $query->execute([$total,$precio['cns']]);
+                    }else{
+                        $query = $con->prepare("INSERT INTO detalle_productos (id_producto_dp,stock,precio_compra) VALUES (?,?,?)");
+
+                        $query->execute([$id,$cantidad,$pc]);
+                    }
+
+                    if($query->rowCount() <= 0){
+                        return "Ha ocurrido un error";
+                    }
+
+                    $producto = self::selectId($id);
+
+                    $stock = $producto['stock'] + $cantidad;
+
+                    $query = $con->prepare("UPDATE productos set stock = ? WHERE id_producto = ?");
+
+                    $query->execute([$stock,$id]);
+
+                    self::descontarInsumos($id,$cantidad);
+
+                    $conexion->closeConexion();
+                    $con = null;
+
+                    return "OK";
                 }else{
-                    $query = $con->prepare("INSERT INTO detalle_productos (id_producto_dp,stock,precio_compra) VALUES (?,?,?)");
-
-                    $query->execute([$id,$cantidad,$pc]);
+                    return "No hay insumos suficientes";
                 }
+                
+                
+            }catch(PDOException $e){
+                return $e->getMessage();
+            }
+        }
 
-                if($query->rowCount() <= 0){
-                    return "Ha ocurrido un error";
+        public static function verificarInsumosDisponibles($id,$cantidad){
+            try{
+
+                $insumos = self::selectInsumos($id);
+
+                foreach($insumos as $row){
+                    $disponible = Insumo_model::selectId($row['id_insumo']);
+                    
+                    if( ($row['cantidad'] * $cantidad) > $disponible['stock'] ){
+                        return false;
+                    }
                 }
+        
+                return true;
+                
+            }catch(PDOException $e){
+                return $e->getMessage();
+            }
+        }
 
-                $producto = self::selectId($id);
+        public static function descontarInsumos($id,$cantidad){
+            try{
 
-                $stock = $producto['stock'] + $cantidad;
+                $insumos = self::selectInsumos($id);
 
-                $query = $con->prepare("UPDATE productos set stock = ? WHERE id_producto = ?");
-
-                $query->execute([$stock,$id]);
-
-                $conexion->closeConexion();
-                $con = null;
-
-                return "OK";
+                foreach($insumos as $row){
+                    $descontar = $row['cantidad'] * $cantidad;
+                    Insumo_model::subtractStock($row['id_insumo'],$descontar,'Venta');
+                }
                 
             }catch(PDOException $e){
                 return $e->getMessage();
