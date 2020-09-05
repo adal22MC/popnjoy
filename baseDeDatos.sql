@@ -126,7 +126,8 @@ create table ventas(
   cliente int NOT NULL,
   fecha date DEFAULT CURRENT_DATE,
   hora time DEFAULT CURRENT_TIME,
-  total_endido float NOT NULL,
+  total_venta float NOT NULL,
+  total_costo float NOT NULL,
   ganancia float NOT NULL,
   FOREIGN KEY (cliente) REFERENCES clientes (id),
   primary key(id_venta)
@@ -135,14 +136,15 @@ create table ventas(
 CREATE TABLE ventas_producto(
   id_venta int NOT NULL,
   id_producto int NOT NULL,
-  total float NOT NULL,
+  total_venta float NOT NULL,
+  total_costo float NOT NULL,
   ganancia float NOT NULL,
   FOREIGN KEY (id_venta) REFERENCES ventas(id_venta),
   FOREIGN KEY (id_producto) REFERENCES productos(id_producto),
   PRIMARY KEY (id_venta, id_producto)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
--- DETALLE VENTA
+-- DETALLE VENTA (LLAVES MALAS REFERENCIADAS)
 create table detalle_venta(
   cns int NOT NULL AUTO_INCREMENT,
   id_venta int NOT NULL,

@@ -202,7 +202,7 @@
                 }
 
                 // Seleccionamo el cns minimo
-                $query = $con->prepare("SELECT MIN(cns) as cns FROM detalle_productos WHERE id_producto_dp = ?");
+                $query = $con->prepare("SELECT MIN(cns) as cns FROM detalle_productos WHERE id_producto_dp = ? and stock > 0");
                 $query->execute([$id]);
                 $cns_min = $query->fetch();
 
@@ -234,7 +234,7 @@
                 $query = $con->prepare("UPDATE productos set stock = ? WHERE id_producto = ?");
                 $query->execute([$stock,$id]);
 
-                // Insertamos en la tabla insumo_descuentos
+                // Insertamos en la tabla producto_descuentos
                 $query = $con->prepare("INSERT INTO producto_descuentos (id_producto_pd,cantidad,razon) VALUES (?,?,?)");
                 $query->execute([$id,$cantidadBackups,$razon]);
 

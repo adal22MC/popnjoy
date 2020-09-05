@@ -179,7 +179,7 @@
                 }
 
                 // Seleccionamo el cns minimo
-                $query = $con->prepare("SELECT MIN(cns) as cns FROM detalle_insumos WHERE id_insumo_di = ?");
+                $query = $con->prepare("SELECT MIN(cns) as cns FROM detalle_insumos WHERE id_insumo_di = ? and stock > 0");
                 $query->execute([$id]);
                 $cns_min = $query->fetch();
 

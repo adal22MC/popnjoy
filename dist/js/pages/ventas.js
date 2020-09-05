@@ -152,6 +152,7 @@ generarVenta.addEventListener('submit', (e)=>{
             success: function (data, textStatus, jqXHR) {
                 
                 if(data.respuesta == "OK"){
+                    tablaProductos.ajax.reload(null,false);
                     notificacionExitosa('Venta generada');
                 }else{
                     notificarError(data.respuesta);
@@ -219,6 +220,10 @@ function validarProductoRepetido(id){
     return true;
 }
 
+function deleteRows() {
+    $("#tableListaProductos tbody").children().remove();
+}
+
 function notificarError(mensaje){
     Swal.fire({
         icon: 'error',
@@ -233,7 +238,11 @@ function notificacionExitosa(mensaje){
         '',
         'success'
     ).then(result => {
-        
+        $("#modalSeleccionarCliente").modal('hide');
+        productos = [];
+        deleteRows();
+        totalAPagar = 0;
+        labelPagar.innerText = "Total a pagar : " + totalAPagar;
     });
 }
 
