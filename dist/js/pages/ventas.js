@@ -243,6 +243,7 @@ function notificacionExitosa(mensaje){
         deleteRows();
         totalAPagar = 0;
         labelPagar.innerText = "Total a pagar : " + totalAPagar;
+        // aqui iria
     });
 }
 

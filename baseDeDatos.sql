@@ -144,7 +144,7 @@ CREATE TABLE ventas_producto(
   PRIMARY KEY (id_venta, id_producto)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
--- DETALLE VENTA (LLAVES MALAS REFERENCIADAS)
+-- DETALLE VENTA (LLAVES MALAS REFERENCIADAS) NO LA OCUPES
 create table detalle_venta(
   cns int NOT NULL AUTO_INCREMENT,
   id_venta int NOT NULL,
