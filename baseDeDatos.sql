@@ -129,6 +129,7 @@ create table ventas(
   total_venta float NOT NULL,
   total_costo float NOT NULL,
   ganancia float NOT NULL,
+  total_productos int NOT NULL,
   FOREIGN KEY (cliente) REFERENCES clientes (id),
   primary key(id_venta)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
@@ -139,6 +140,8 @@ CREATE TABLE ventas_producto(
   total_venta float NOT NULL,
   total_costo float NOT NULL,
   ganancia float NOT NULL,
+  cantidad int NOT NULL,
+  precio float NOT NULL,
   FOREIGN KEY (id_venta) REFERENCES ventas(id_venta),
   FOREIGN KEY (id_producto) REFERENCES productos(id_producto),
   PRIMARY KEY (id_venta, id_producto)

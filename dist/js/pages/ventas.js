@@ -87,7 +87,7 @@ $(document).on('click', '.btnComprar', function(){
                 
                 if(cantidad.value <= 0){
                     notificarError('Ingresa una cantidad valida');
-                }else if(cantidad.value > data['stock']){
+                }else if(cantidad.value > parseInt(data['stock'])){
                     notificarError('No hay suficiente stock');
                 }else {
                     let total = cantidad.value * parseFloat(data['precio_venta']);

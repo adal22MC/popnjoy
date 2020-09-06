@@ -18,7 +18,7 @@ class Venta_model {
                 $con = $conexion->getConexion();
                 
                 // Insertamos en la tabla ventas
-                $query = $con->prepare("INSERT INTO ventas (cliente,total_venta,total_costo,ganancia) VALUES (?,?,?,?)");
+                $query = $con->prepare("INSERT INTO ventas (cliente,total_venta,total_costo,ganancia,total_productos) VALUES (?,?,?,?,0)");
                 $query->execute([$venta[0]['cliente'],0,0,0]);
 
                 // Obtenemos el id de la venta qu insertamos
@@ -26,9 +26,13 @@ class Venta_model {
                 $query->execute();
                 $id_venta = $query->fetch();
 
+                $total_productos = 0;
+
                 //Empezamos a recorrer los producto de la venta
                 for($i=1; $i<count($venta); $i++){
                     self::descontarProductoVenta($venta[$i]['producto'],$venta[$i]['cantidad'],$id_venta['id_venta']);
+
+                    $total_productos = $total_productos + $venta[$i]['cantidad'];
                 }
 
                 // Obtemos el total de la venta
@@ -44,8 +48,8 @@ class Venta_model {
                 $ganancia = $total_venta['total_venta'] - $total_costo['total_costo'];
 
                 // Modificamos la venta para insertar correctamente los totales y la ganancia
-                $query = $con->prepare("UPDATE ventas set total_venta = ?, total_costo = ?, ganancia = ? WHERE id_venta = ? ");
-                $query->execute([$total_venta['total_venta'],$total_costo['total_costo'],$ganancia,$id_venta['id_venta']]);
+                $query = $con->prepare("UPDATE ventas set total_venta = ?, total_costo = ?, ganancia = ?, total_productos = ? WHERE id_venta = ? ");
+                $query->execute([$total_venta['total_venta'],$total_costo['total_costo'],$ganancia,$total_productos,$id_venta['id_venta']]);
 
                 return "OK"; 
 
@@ -103,13 +107,15 @@ class Venta_model {
 
             }
 
+            // Obtenemos de nuevo los datos del producto
+            $producto = Producto_model::selectId($id);
+
             /* Insertamos el tabla ventas_producto */
-            $query = $con->prepare("INSERT INTO ventas_producto (id_venta,id_producto,total_venta,total_costo,ganancia) VALUES (?,?,?,?,?)");
-            $query->execute([$venta,$id,$total_venta,$total_costo,($total_venta-$total_costo)]);
+            $query = $con->prepare("INSERT INTO ventas_producto (id_venta,id_producto,total_venta,total_costo,ganancia,cantidad,precio) VALUES (?,?,?,?,?,?,?)");
+            $query->execute([$venta,$id,$total_venta,$total_costo,($total_venta-$total_costo),$cantidadBackups,$producto['precio_venta']]);
             
 
             // Actualizamos el stock
-            $producto = Producto_model::selectId($id);
             $stock = $producto['stock'] - $cantidadBackups;
             $query = $con->prepare("UPDATE productos set stock = ? WHERE id_producto = ?");
             $query->execute([$stock,$id]);
