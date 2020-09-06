@@ -47,7 +47,7 @@
                                           <th>FECHA</th>
                                           <th>HORA</th>
                                           <th>TOTAL VENDIDO</th>
-                                          <th>PRODUCTOS VENDIDOS</th>
+                                          <th>P. VENDIDOS</th>
                                           <th>ACCIONES</th>
                                         </tr>
                                     </thead>

@@ -85,4 +85,24 @@
             }
         }
 
+        public static function select(){
+            try{
+
+                $conexion = new Conexion();
+                $con = $conexion->getConexion();
+
+                $cierre = self::getCierreActual();
+
+                $query = $con->prepare("SELECT * FROM cierre_dia WHERE estado = 0");
+                $query->execute();
+
+                $cierres = $query->fetchAll();
+
+                return $cierres;
+
+            }catch(PDOException $e){
+                return $e->getMessage();
+            }
+        }
+
     }

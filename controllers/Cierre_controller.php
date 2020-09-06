@@ -3,6 +3,14 @@
     require_once "../models/Cierre_model.php";
     session_start();
 
+    if(isset($_POST['select'])){
+        if(isset($_SESSION['usuario'])){
+            $cierres = Cierre_model::select();
+            echo json_encode($cierres);
+        }
+    }
+
+
     if(isset($_POST['check_apertura'])){
         if(isset($_SESSION['usuario'])){
             $response = Cierre_model::verificar_dia_cerrado();

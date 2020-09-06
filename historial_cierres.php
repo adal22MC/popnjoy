@@ -1,11 +1,9 @@
 <?php
 
   session_start();
-  if(isset($_SESSION['usuario'])){}else{
+  if(!isset($_SESSION['usuario'])){
     header('Location: index.php');
   }
-
-  include_once("models/dia_modelo.php");
 
 ?>
 
@@ -36,22 +34,22 @@
                                 </div>
                                 <!-- /.card-header -->
                                 <div class="card-body">
-                                    <table id="example1" class="table table-bordered table-striped tableHistorialClientes">
+                                    <table id="tablaCierres" class="table table-bordered table-striped">
                                     <thead>
                                         <tr>
                                             <th>ID CIERRE</th>
                                             <th>FECHA</th>
                                             <th>HORA</th>
-                                            <th>TOTAL VENTA</th>
+                                            <th>TOTAL VENDIDO</th>
+                                            <th>TOTAL COSTO</th>
+                                            <th>GANANCIA</th>
+                                            <th>ESTADO</th>
                                             <th>ACCIONES</th>
                                         </tr>
                                     </thead>
 
                                     <tbody>
-                                        <?php
-                                           $dia = new Dia();
-                                           $dia->llenarTablaCierres();
-                                        ?>
+                                       
                                     </tbody>
 
                                     </table>

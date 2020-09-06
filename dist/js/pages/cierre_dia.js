@@ -21,7 +21,7 @@ async function init(){
             {"data" : "hora"},
             {"data" : "total_venta"},
             {"data" : "total_productos"},
-            {"defaultContent": "<div class='text-center'><div class='btn-group'><button class='btn btn-info btn-sm btnEditar'><i class='fas fa-edit'></i></button><button class='btn btn-danger btn-sm btnBorrar'><i class='fas fa-trash-alt'></i></button></div></div>"}
+            {"defaultContent": "<div class='text-center'><div class='btn-group'><button class='btn btn-danger btn-sm btnBorrar'><i class='fas fa-file-pdf'></i></button></div></div>"}
         ]
     });
 
