@@ -1,13 +1,10 @@
 <?php
 
   session_start();
-  if(isset($_SESSION['usuario'])){}else{
+  if(!isset($_SESSION['usuario'])){
     header('Location: index.php');
   }
 
-  
-  include("models/ventas_modelo.php");
-  include("models/dia_modelo.php");
 ?>
 
 <!DOCTYPE html>
@@ -34,23 +31,15 @@
                                 <div class="card">
                                 <div class="card-header">
                                     <h2 class="card-title pr-3 mt-2">Ventas de Hoy</h2>
-                                    <?php
-                                      $dia = new Dia();
-                                      $ban = $dia->verificiarDia();
-                                      if($ban){
-                                    ?> 
-                                    <button id="cerrarDia" class="btn btn-primary">CERRAR DIA</button>
-                                    <?php
-                                      }else{
-                                    ?>  <button id="cerrarDia" class="btn btn-primary disabled">DIA CERRADO</button>
-                                    <?php
-                                      }
-                                    ?>
+                                    
+                                    <button id="cerrarDia" class="btn btn-outline-primary btn-sm">
+                                      CERRAR DIA
+                                    </button>
                                     
                                 </div>
                                 <!-- /.card-header -->
                                 <div class="card-body">
-                                    <table id="example1" class="table table-bordered table-striped tableHistorialClientes">
+                                    <table id="tablaVentas" class="table table-bordered table-striped">
                                     <thead>
                                         <tr>
                                           <th>ID VENTA</th>
@@ -58,13 +47,13 @@
                                           <th>FECHA</th>
                                           <th>HORA</th>
                                           <th>TOTAL VENDIDO</th>
+                                          <th>PRODUCTOS VENDIDOS</th>
+                                          <th>ACCIONES</th>
                                         </tr>
                                     </thead>
 
                                     <tbody>
-                                        <?php
-                                            ModeloVentas::llenarTablaVentasDia();
-                                        ?>
+                                        
                                     </tbody>
 
                                     </table>

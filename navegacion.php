@@ -26,13 +26,13 @@
 
         <!-- Sidebar -->
         <div class="sidebar">
-            
+
             <!-- Sidebar Menu -->
             <nav class="mt-2">
 
                 <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
 
-                    <!-- SUCURSALES -->
+                    <!-- EMPRESA -->
                     <li class="nav-item">
                         <a href="sucursal.php" class="nav-link">
                             <i class="nav-icon fas fa-hotel"></i>
@@ -92,7 +92,7 @@
                         </a>
                     </li>
 
-                     <!-- VENTAS -->
+                    <!-- VENTAS -->
                     <li class="nav-item has-treeview menu-close">
                         <a href="#" class="nav-link">
                             <i class="nav-icon fas fa-money-check-alt"></i>
@@ -104,33 +104,48 @@
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
                                 <a href="ventas.php" class="nav-link">
-                                <i class="fas fa-minus-3x nav-icon"></i>
-                                <p>Vender Productos</p>
+                                    <i class="fas fa-minus-3x nav-icon"></i>
+                                    <p>Vender Productos</p>
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a href="historial_ventas.php" class="nav-link">
-                                <i class="fas fa-minus-3x nav-icon"></i>
-                                <p>Historial de ventas</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="historial_cierres.php" class="nav-link">
-                                <i class="fas fa-minus-3x nav-icon"></i>
-                                <p>Historial de cierres</p>
+                                    <i class="fas fa-minus-3x nav-icon"></i>
+                                    <p>Historial de ventas</p>
                                 </a>
                             </li>
                         </ul>
                     </li>
 
-                    <!-- CIERRE DE DIA -->
+                    <!-- CIERRE Y APERTURA -->
                     <li class="nav-item">
-                        <a href="cierre_dia.php" class="nav-link">
-                            <i class="nav-icon fas fa-hand-holding-usd"></i>
+                        <a href="#" class="nav-link">
+                            <i class="nav-icon fas fa-shipping-fast"></i>
                             <p>
-                                CIERRE DE DIA
+                                CIERRE Y APERTURA
+                                <i class="right fas fa-angle-left"></i>
                             </p>
                         </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a id="apertura_dia" href="#" class="nav-link">
+                                    <i class="fas fa-minus-3x nav-icon"></i>
+                                    <p>Apertura de día</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="cierre_dia.php" class="nav-link">
+                                    <i class="fas fa-minus-3x nav-icon"></i>
+                                    <p>Cierre de día</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="historial_cierres.php" class="nav-link">
+                                    <i class="fas fa-minus-3x nav-icon"></i>
+                                    <p>Historial de cierres</p>
+                                </a>
+                            </li>
+                        </ul>
                     </li>
 
                 </ul>

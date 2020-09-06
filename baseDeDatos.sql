@@ -120,16 +120,30 @@ CREATE TABLE producto_insumos(
   PRIMARY KEY (producto, insumo)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
+-- CIERRES DE DIA
+create table cierre_dia(
+  id_cd int NOT NULL AUTO_INCREMENT,
+  fecha date DEFAULT CURRENT_DATE,
+  hora time DEFAULT CURRENT_TIME,
+  total_vendido float NOT NULL,
+  total_costo float NOT NULL,
+  ganancia float NOT NULL,
+  estado int NOT NULL,
+  PRIMARY KEY(id_cd)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
+
 -- TABLA VENTAS
 create table ventas(
   id_venta int NOT NULL AUTO_INCREMENT, 
   cliente int NOT NULL,
+  id_cierre_dia int NOT NULL,
   fecha date DEFAULT CURRENT_DATE,
   hora time DEFAULT CURRENT_TIME,
   total_venta float NOT NULL,
   total_costo float NOT NULL,
   ganancia float NOT NULL,
   total_productos int NOT NULL,
+  FOREIGN KEY (id_cierre_dia) REFERENCES cierre_dia (id_cd),
   FOREIGN KEY (cliente) REFERENCES clientes (id),
   primary key(id_venta)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
@@ -164,29 +178,4 @@ create table detalle_venta(
 
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
--- CIERRES DE DIA
-create table cierre_dia(
-  id_cd int NOT NULL AUTO_INCREMENT,
-  fecha date DEFAULT CURRENT_DATE,
-  hora time DEFAULT CURRENT_TIME,
-  venta float NOT NULL,
-  ganancia float NOT NULL,
-  PRIMARY KEY(id_cd)
-)ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
--- DETALLE CIERRE DIA
-create table detalle_cierre_dia(
-  cns int NOT NULL AUTO_INCREMENT,
-  id_cd_dcd int NOT NULL references cierre_dia,
-  id_venta int NOT NULL references ventas,
-  primary key(cns, id_cd_dcd)
-)ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
-
-CREATE TABLE cierre_mes(
-  id_cm int NOT NULL AUTO_INCREMENT,
-  fecha date DEFAULT CURRENT_DATE,
-  hora time DEFAULT CURRENT_TIME,
-  venta_total float NOT NULL,
-  ganancia float NOT NULL,
-  PRIMARY KEY (id_cm)
-)ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;

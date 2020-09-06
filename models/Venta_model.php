@@ -3,6 +3,7 @@
 require_once ("conexion.php");
 require_once ("Cliente_model.php");
 require_once ("Producto_model.php");
+require_once ("Cierre_model.php");
 
 class Venta_model {
 
@@ -16,10 +17,13 @@ class Venta_model {
 
                 $conexion = new Conexion();
                 $con = $conexion->getConexion();
+
+                // Obtenemos los datos del cierre actual del cierrte actual
+                $cierre = Cierre_model::getCierreActual();
                 
                 // Insertamos en la tabla ventas
-                $query = $con->prepare("INSERT INTO ventas (cliente,total_venta,total_costo,ganancia,total_productos) VALUES (?,?,?,?,0)");
-                $query->execute([$venta[0]['cliente'],0,0,0]);
+                $query = $con->prepare("INSERT INTO ventas (cliente,total_venta,total_costo,ganancia,total_productos,id_cierre_dia) VALUES (?,?,?,?,0,?)");
+                $query->execute([$venta[0]['cliente'],0,0,0,$cierre['id_cd']]);
 
                 // Obtenemos el id de la venta qu insertamos
                 $query = $con->prepare("SELECT MAX(id_venta) as id_venta FROM ventas;");
@@ -50,6 +54,15 @@ class Venta_model {
                 // Modificamos la venta para insertar correctamente los totales y la ganancia
                 $query = $con->prepare("UPDATE ventas set total_venta = ?, total_costo = ?, ganancia = ?, total_productos = ? WHERE id_venta = ? ");
                 $query->execute([$total_venta['total_venta'],$total_costo['total_costo'],$ganancia,$total_productos,$id_venta['id_venta']]);
+
+                // Actualizamos los datos de la tabla cierre de dia
+                $tv_cierre = $cierre['total_vendido'] + $total_venta['total_venta'];
+                $tc_cierre = $cierre['total_costo'] + $total_costo['total_costo'];
+                $g_cierre = $cierre['ganancia'] + $ganancia;
+                
+                $query = $con->prepare("UPDATE cierre_dia set total_vendido = ?, total_costo = ?, ganancia = ? WHERE id_cd = ?");
+                $query->execute([$tv_cierre,$tc_cierre,$g_cierre,$cierre['id_cd']]);
+                
 
                 return "OK"; 
 
@@ -144,7 +157,25 @@ class Venta_model {
         return true;
     }
 
-    
+    public static function select_ventas_current(){
+        try{
+
+            $conexion = new Conexion();
+            $con = $conexion->getConexion();
+
+            $query = $con->prepare("SELECT id_venta,cliente,fecha,hora,total_venta,total_productos FROM ventas WHERE fecha = CURRENT_DATE");
+            $query->execute();
+            $ventas = $query->fetchAll();
+
+            $conexion->closeConexion();
+            $con = null;
+
+            return $ventas;
+
+        }catch(PDOException $e){
+            return $e->getMessage();
+        }
+    }
     
 }
 
