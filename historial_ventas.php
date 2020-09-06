@@ -1,11 +1,9 @@
 <?php
 
   session_start();
-  if(isset($_SESSION['usuario'])){}else{
+  if(!isset($_SESSION['usuario'])){
     header('Location: index.php');
   }
-
-  include("models/producto_modelo.php");
 
 ?>
 
@@ -36,7 +34,7 @@
                                 </div>
                                 <!-- /.card-header -->
                                 <div class="card-body">
-                                    <table id="example1" class="table table-bordered table-striped tableHistorialClientes">
+                                    <table id="tablaVentas" class="table table-bordered table-striped tableHistorialClientes">
                                     <thead>
                                         <tr>
                                         <th>ID VENTA</th>
@@ -49,9 +47,7 @@
                                     </thead>
 
                                     <tbody>
-                                        <?php
-                                            ModeloProducto::llenarTablaHistorialVentas();
-                                        ?>
+                                        
                                     </tbody>
 
                                     </table>

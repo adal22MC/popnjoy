@@ -1,9 +1,9 @@
 <?php
   session_start();
-  if(isset($_SESSION['usuario'])){}else{
+  if(!isset($_SESSION['usuario'])){
     header('Location: index.php');
   }
-  include("models/cliente_modelo.php");
+  
 ?>
 
 
@@ -29,7 +29,7 @@
 
             <div class="card">
               <div class="card-header">
-                <button class="btn btn-outline-primary" data-toggle="modal" data-target="#modalAgregarCliente">
+                <button id="btnAgregarCliente" class="btn btn-outline-primary" data-toggle="modal" data-target="#modalCliente">
 
                   Agregar un nuevo cliente
 
@@ -38,23 +38,23 @@
               </div>
               <!-- /.card-header -->
               <div class="card-body">
-                <table id="example1" class="table table-bordered table-striped tablaClientes">
+                <table id="tablaClientes" class="table table-bordered table-striped">
                   <thead>
                     <tr>
-                      <th>ID Cliente</th>
+                      <th>ID</th>
                       <th>Nombre</th>
                       <th>Tipo Cliente</th>
                       <th>Email</th>
                       <th>Telefono</th>
                       <th>Dirección</th>
+                      <th>Porcentaje</th>
+                      <th>Status</th>
                       <th>Acciones</th>
                     </tr>
                   </thead>
 
-                  <tbody id="sucursalesBody">
-                    <?php
-                        ModeloCliente::llenarTablaClientes();
-                    ?>
+                  <tbody>
+                    
                   </tbody>
 
                 </table>
@@ -79,13 +79,13 @@
   MODAL AGREGAR CLIENTE
   ======================================-->
 
-    <div id="modalAgregarCliente" class="modal fade" role="dialog">
+    <div id="modalCliente" class="modal fade" role="dialog">
 
       <div class="modal-dialog">
 
         <div class="modal-content">
 
-          <form id="formAddCliente">
+          <form id="formCliente">
 
             <!--=====================================
                 HEADER DEL MODAL
@@ -93,7 +93,7 @@
 
             <div class="modal-header">
 
-              <h5 class="modal-title" id="exampleModalLabel">Nuevo Cliente</h5>
+              <h5 class="modal-title" id="tituloModal">Nuevo Cliente</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -115,7 +115,7 @@
                       <i class="fas fa-user"></i>
                     </span>
                   </div>
-                  <input type="text" class="form-control" name="nombreCliente" placeholder="Ingresar nombre del Cliente" required>
+                  <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Nombre" required>
                 </div>
 
                 <!-- ENTRADA PARA EL TIPO DE CLIENTE -->
@@ -125,7 +125,7 @@
                       <i class="fas fa-users-cog"></i>
                     </span>
                   </div>
-                  <input type="text" class="form-control" name="tipoCliente" placeholder="Ingresar el tipo de cliente" required>
+                  <input type="text" class="form-control" id="tipo_cliente" name="tipo_cliente" placeholder="Tipo" required>
                 </div>
 
                 
@@ -136,7 +136,7 @@
                       <i class="fas fa-envelope"></i>
                     </span>
                   </div>
-                  <input type="email" class="form-control" name="correoCliente" placeholder="Ingresar correo del cliente" required>
+                  <input type="email" class="form-control" id="correo" name="correo" placeholder="Correo" required>
                 </div>
 
                 <!-- ENTRADA PARA EL TELEFONO -->
@@ -146,7 +146,7 @@
                       <i class="fas fa-phone"></i>
                     </span>
                   </div>
-                  <input type="number" class="form-control" name="telefonoCliente" placeholder="Ingresar telefono del cliente" required>
+                  <input type="number" class="form-control" id="telefono"  name="telefono" placeholder="Telefono" required>
                 </div>
 
                 <!-- ENTRADA PARA LA DIRECCION -->
@@ -156,19 +156,9 @@
                       <i class="fas fa-route"></i>
                     </span>
                   </div>
-                  <input type="text" class="form-control" name="direccionCliente" placeholder="Ingresar dirección del cliente" required>
+                  <input type="text" class="form-control" id="direccion" name="direccion" placeholder="Dirección" required>
                 </div>
 
-                <!-- ENTRADA PARA EL PORCENTAJE 
-                <div class="input-group pt-3">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text">
-                      <i class="fas fa-percentage"></i>
-                    </span>
-                  </div>
-                  <input type="number" class="form-control" name="porcentajeCliente" placeholder="Ingresar porcentaje de descuento" required>
-                </div>
-                -->
               </div>
 
             </div>
@@ -179,129 +169,13 @@
 
             <div class="modal-footer">
               <button id="close" type="button" class="btn btn-default pull-left" data-dismiss="modal">Cancelar</button>
-              <button id="registrarSucursal" name="registrarSucursal" type="submit" class="btn btn-primary">Agregar Cliente</button>
+              <button id="btnFormCliente" name="registrarSucursal" type="submit" class="btn btn-primary">Agregar Cliente</button>
             </div>
           </form>
         </div>
       </div>
     </div>
 
-  <!--=====================================
-  MODAL EDITAR CLIENTE
-  ======================================-->
-
-    <div id="modalEditarCliente" class="modal fade" role="dialog">
-
-      <div class="modal-dialog">
-
-        <div class="modal-content">
-
-          <form id="formEditCliente">
-
-            <!--=====================================
-             HEADER DEL MODAL
-            ======================================-->
-
-            <div class="modal-header">
-
-              <h5 class="modal-title">Editar Cliente</h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-
-            </div>
-
-            <!--=====================================
-             CUERPO DEL MODAL
-           ======================================-->
-
-            <div class="modal-body">
-
-              <div class="box-body">
-
-                  <!-- ENTRADA PARA EL NOMBRE -->
-                <div class="input-group pt-3">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text">
-                      <i class="fas fa-user"></i>
-                    </span>
-                  </div>
-                  <input id="nombreCliente" type="text" class="form-control" name="nombreCliente" placeholder="Ingresar nombre del Cliente" required>
-                </div>
-
-                <!-- ENTRADA PARA EL TIPO DE CLIENTE -->
-                <div class="input-group pt-3">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text">
-                      <i class="fas fa-users-cog"></i>
-                    </span>
-                  </div>
-                  <input id="tipoCliente" type="text" class="form-control" name="tipoCliente" placeholder="Ingresar el tipo de cliente" required>
-                </div>
-
-                
-                <!-- ENTRADA PARA EL CORREO -->
-                <div class="input-group pt-3">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text">
-                      <i class="fas fa-envelope"></i>
-                    </span>
-                  </div>
-                  <input id="correoCliente" type="email" class="form-control" name="correoCliente" placeholder="Ingresar correo del cliente" required>
-                </div>
-
-                <!-- ENTRADA PARA EL TELEFONO -->
-                <div class="input-group pt-3">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text">
-                      <i class="fas fa-phone"></i>
-                    </span>
-                  </div>
-                  <input id="telefonoCliente" type="number" class="form-control" name="telefonoCliente" placeholder="Ingresar telefono del cliente" required>
-                </div>
-
-                <!-- ENTRADA PARA LA DIRECCION -->
-                <div class="input-group pt-3">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text">
-                      <i class="fas fa-route"></i>
-                    </span>
-                  </div>
-                  <input id="direccionCliente" type="text" class="form-control" name="direccionCliente" placeholder="Ingresar dirección del cliente" required>
-                </div>
-
-                <!-- ENTRADA PARA EL PORCENTAJE -
-                <div class="input-group pt-3">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text">
-                      <i class="fas fa-percentage"></i>
-                    </span>
-                  </div>
-                  <input id="porcentajeCliente" type="number" class="form-control" name="porcentajeCliente" placeholder="Ingresar porcentaje de descuento" required>
-                </div>
-                -->
-              </div>
-
-            </div>
-
-            <!--=====================================
-              PIE DEL MODAL
-              ======================================-->
-
-            <div class="modal-footer">
-              <button id="closeEdit" type="button" class="btn btn-default pull-left" data-dismiss="modal">Cancelar</button>
-              <button id="editarSucursal" type="submit" class="btn btn-primary">Guardar cambios</button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-
-
-    <?php include("footer.php") ?>
-
-  </div>
-  <!-- ./wrapper -->
 
   <?php include('scripts.php'); ?>
   <script src="dist/js/pages/clientes.js"></script>

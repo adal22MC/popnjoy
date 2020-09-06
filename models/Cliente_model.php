@@ -6,9 +6,11 @@
 
         private static $SELECT = "SELECT * FROM clientes where status = 1";
 
-        private static $INSERT_CLIENTE = "INSERT INTO clientes (nombre,tipo,email,telefono,direccion,porcentaje) VALUES (?,?,?,?,?,?)";
+        private static $INSERT = "INSERT INTO clientes (nombre,tipo,email,telefono,direccion,porcentaje) VALUES (?,?,?,?,?,?)";
 
-        private static $EDIT_CLIENT = "UPDATE clientes SET nombre=?, tipo=?, email=? ,telefono=?, direccion=?, porcentaje=? WHERE id = ?";
+        private static $EDIT = "UPDATE clientes SET nombre=?, tipo=?, email=? ,telefono=?, direccion=?, porcentaje=? WHERE id = ?";
+
+        private static $DELETE = "UPDATE clientes set status = 0 WHERE id = ?";
 
         public static function select(){
             try{
@@ -52,95 +54,45 @@
             }
         }
 
-        public static function llenarTablaClientes(){
-            $conexion = new Conexion();
-            $con = $conexion->getConexion();
-
-            $pst = $con->prepare('SELECT * FROM clientes');
-            $pst->execute();
-            $clientes = $pst->fetchAll();
-
-            foreach($clientes as $row){
-                echo '
-                    <tr>
-                        <td>'.$row['id'].'</td>
-                        <td>'.$row['nombre'].'</td>
-                        <td>'.$row['tipo'].'</td>
-                        <td>'.$row['email'].'</td>
-                        <td>'.$row['telefono'].'</td>
-                        <td>'.$row['direccion'].'</td>
-                        <td class="text-center py-0  align-middle">
-                            <div class="btn-group btn-group-sm">
-                                <button class="btn btn-danger mr-1 btnBorrar" id='.$row['id'].' >
-                                <i class="fas fa-trash-alt" id="'.$row['id'].'"></i>
-                                </button>
-                            
-                                <button class="btn btn-info btnEditar" data-toggle="modal" data-target="#modalEditarCliente" id="'.$row['id'].'">
-                                    <i class="fas fa-edit" id="'.$row['id'].'"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                ';
-            }
-            $conexion->closeConexion();
-            $con = null;
-        }
-
-        public static function addCliente($nom,$tipo,$email,$tel,$direc,$des){
+        public static function insert($cliente){
             try{
                 $conexion = new Conexion();
                 $con = $conexion->getConexion();
 
-                $pst = $con->prepare(self::$INSERT_CLIENTE);
-                $pst->execute([$nom,$tipo,$email,$tel,$direc,$des]);
+                $pst = $con->prepare(self::$INSERT);
+                $pst->execute([$cliente['nombre'],$cliente['tipo'],$cliente['email'],$cliente['telefono'],$cliente['direccion'],$cliente['porcentaje']]);
 
                 $conexion->closeConexion();
                 $con = null;
 
-                return "ok";
+                return "OK";
             }catch(PDOException $e){
                 return $e->getMessage();
             }
         }
 
-        public static function getClientId($id){
-            try{
-                $conexion = new Conexion();
-                $con = $conexion->getConexion();
-
-                $pst = $con->prepare("SELECT * FROM clientes WHERE id = ?");
-                $pst->execute([$id]);
-
-                $datosCliente = $pst->fetch();
-                return $datosCliente;
-            }catch(PDOException $e){
-                return $e->getMessage();
-            }
-        }
-
-        public static function editClient($id,$nombre,$tipo,$email,$tel,$dir,$por){
+        public static function update($cliente){
             try{
                 $conexion = new Conexion();
                 $con = $conexion->getConexion();
                 
-                $pst = $con->prepare(self::$EDIT_CLIENT);
-                $pst->execute([$nombre,$tipo,$email,$tel,$dir,$por,$id]);
-                return "ok";
+                $pst = $con->prepare(self::$EDIT);
+                $pst->execute([$cliente['nombre'],$cliente['tipo'],$cliente['email'],$cliente['telefono'],$cliente['direccion'],$cliente['porcentaje'],$cliente['id']]);
+                return "OK";
             }catch(PDOException $e){
                 return $e->getMessage();
             }
         }
 
-        public static function deleteClient($id){
+        public static function delete($id){
             try{
                 $conexion = new Conexion();
                 $con = $conexion->getConexion();
 
-                $pst = $con->prepare("DELETE FROM clientes WHERE id = $id");
-                $pst->execute();
+                $pst = $con->prepare(self::$DELETE);
+                $pst->execute([$id]);
 
-                return "ok";
+                return "OK";
             }catch(PDOException $e){
                 return $e->getMessage();
             }
