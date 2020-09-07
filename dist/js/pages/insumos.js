@@ -184,9 +184,11 @@ $(document).on('click', '.btnAgregarStock', function(){
     razon_descuento.setAttribute('style','display :none;');
     document.getElementById('razon').removeAttribute('required');
 
+    /*
     let precio_compra = document.getElementById('entrada_precio_compra');
     precio_compra.removeAttribute('style');
     precio_compra.setAttribute('required', true);
+    */
 
     tituloModalStock.innerText = "Aumentando Stock";
     btnFormStock.innerText = "Aumentar Stock";
@@ -210,9 +212,11 @@ $(document).on('click', '.btnBajarStock', function(){
     razon_descuento.removeAttribute('style');
     
 
+    /*
     let precio_compra = document.getElementById('entrada_precio_compra');
     precio_compra.setAttribute('style', 'display : none;');
     document.getElementById('precio_compra').removeAttribute('required');
+    */
 
     tituloModalStock.innerText = "Descontando Stock";
     btnFormStock.innerText = "Descontar";

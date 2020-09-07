@@ -2,18 +2,6 @@
   <script src="plugins/jquery/jquery.min.js"></script>
   <!-- jQuery UI 1.11.4 -->
   
-  <!-- 
-  <script src="plugins/jquery-ui/jquery-ui.min.js"></script>
-   Resolve conflict in jQuery UI tooltip with Bootstrap tooltip 
-
-  
-  <script>
-    $.widget.bridge('uibutton', $.ui.button)
-  </script>
-  -->
-  
-
-
   <!-- Bootstrap 4 -->
   <script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
   <!-- ChartJS -->
@@ -52,14 +40,4 @@
   <script src="plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
   <script src="plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
 
-
-  <script>
-    
-    $(function() {
-      $("#example1").DataTable({
-        "responsive": true,
-        "autoWidth": false,
-      });
-    });
-    
-  </script>
+  <script src="dist/js/pages/apertura_dia.js"></script>

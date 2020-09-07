@@ -1,5 +1,47 @@
 const btnCierreDia = document.getElementById('cerrarDia');
 
+var tablaVentas;
+
+async function init(){
+    tablaVentas = $("#tablaVentas").DataTable({
+        "responsive": true,
+        "autoWidth" : false,
+        "ajax" : {
+            "url" : "controllers/Venta_controller.php",
+            "type": "POST",
+            "data": {
+                "select_ventas_current" : "OK"
+            },
+            "dataSrc":""
+        },
+        "columns" :[
+            {"data" : "id_venta"},
+            {"data" : "cliente"},
+            {"data" : "fecha"},
+            {"data" : "hora"},
+            {"data" : "total_venta"},
+            {"data" : "total_productos"},
+            {"defaultContent": "<div class='text-center'><div class='btn-group'><button class='btn btn-danger btn-sm btnBorrar'><i class='fas fa-file-pdf'></i></button></div></div>"}
+        ]
+    });
+
+    let datos = new FormData();
+    datos.append('check_apertura', 'OK');
+
+    let peticion = await fetch('controllers/Cierre_controller.php', {
+        method : 'POST',
+        body : datos
+    });
+
+    let resjson = await peticion.json();
+
+    if(resjson.respuesta === "OK"){
+        document.getElementById('cerrarDia').className += " disabled";
+    }
+}
+
+init();
+
 btnCierreDia.addEventListener('click', async () => {
 
     if(document.querySelector("#cerrarDia.disabled")){
@@ -19,9 +61,9 @@ btnCierreDia.addEventListener('click', async () => {
         if(result.value){
 
             let datos = new FormData();
-            datos.append('cerrar_dia', 'OK');
+            datos.append('close_day', 'OK');
             
-            let peticion = await fetch('apis/apisCerrarDia.php', {
+            let peticion = await fetch('controllers/Cierre_controller.php', {
                 method : 'POST',
                 body : datos
             });

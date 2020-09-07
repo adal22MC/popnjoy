@@ -1,171 +1,168 @@
-const addClienteform = document.getElementById('formAddCliente');
-const formEditClient = document.getElementById('formEditCliente');
+const formCliente = document.getElementById('formCliente');
+
+var btnAgregarCliente = document.getElementById('btnAgregarCliente');
+
+var btnFormCliente = document.getElementById('btnFormCliente');
+
+var tituloModal = document.getElementById('tituloModal');
 
 var idCliente; 
 
-/* ============================================
-  Se ejecuta cuando se agrega un cliente
-  =============================================*/
-addClienteform.addEventListener('submit', async (e) => {
-    e.preventDefault();
+var opcion; // 1 Insert, 2 Update
 
-    let formDatosCliente = new FormData(addClienteform);
-    formDatosCliente.append('addCliente', 'ok');
-    // formDatosCliente.append('porcentajeCliente', '0'); // Aun no manejamos le descuento
+var tablaClientes;
 
-    try {
-        let peticion = await fetch('apis/apisCliente.php', {
-            method : 'POST',
-            body : formDatosCliente
-        });
-    
-        let resjson = await peticion.json();
+function init(){
+    tablaClientes = $("#tablaClientes").DataTable({
+        "responsive": true,
+        "autoWidth" : false,
+        "ajax" : {
+            "url" : "controllers/Cliente_controller.php",
+            "type": "POST",
+            "data": {
+                "select" : "OK"
+            },
+            "dataSrc":""
+        },
+        "columns" :[
+            {"data" : "id"},
+            {"data" : "nombre"},
+            {"data" : "tipo"},
+            {"data" : "email"},
+            {"data" : "telefono"},
+            {"data" : "direccion"},
+            {"data" : "porcentaje", "visible" : false},
+            {"data" : "status", "visible" : false},
+            {"defaultContent": "<div class='text-center'><div class='btn-group'><button class='btn btn-info btn-sm btnEditar'><i class='fas fa-edit'></i></button><button class='btn btn-danger btn-sm btnBorrar'><i class='fas fa-trash-alt'></i></button></div></div>"}
+        ]
+    });
+}
 
-        if(resjson.respuesta == "ALTA CORRECTA"){
-            document.getElementById('close').click();
-            Swal.fire(
-                'Alta exitosa!',
-                'You Cliked the button!',
-                'success'
-            ).then( r => {
-                document.getElementById('actualizarPaginaCliente').click();
-            });
-        }else{
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: resjson.respuesta
-            });
-        }
-    
-        ///console.log(resjson);
-    } catch (error) {
-        console.log(error);
+init();
+
+btnAgregarCliente.addEventListener('click', ()=>{
+    formCliente.reset();
+    btnFormCliente.innerText = "Guardar cliente";
+    tituloModal.innerText = "Creando cliente";
+    opcion = 1;
+})
+
+$(document).on('click', '.btnEditar', function(){
+    opcion = 2;
+
+    if(tablaClientes.row(this).child.isShown()){
+        var data = tablaClientes.row(this).data();
+    }else{
+        var data = tablaClientes.row($(this).parents("tr")).data();
     }
 
+    btnFormCliente.innerText = "Guardar cambios";
+    tituloModal.innerText = "Modificando datos del cliente";
+
+    idCliente = data['id'];
+
+    $("#nombre").val(data['nombre']);
+    $("#telefono").val(data['telefono']);
+    $("#correo").val(data['email']);
+    $("#direccion").val(data['direccion']);
+    $("#tipo_cliente").val(data['tipo']);
+
+    $("#modalCliente").modal("show");
 })
 
-/* ============================================
-  Se ejecuta cuando se presiona el boton
-  editar de la tabla clientes
-  =============================================*/
-$('.tablaClientes').on('click', '.btnEditar', async (e)=>{
+formCliente.addEventListener('submit',async (e)=>{
     e.preventDefault();
-
-    let formId = new FormData();
-    formId.append('id', e.target.id);
-
-    let datosCliente = await fetch('apis/apisCliente.php', {
-        method : 'POST',
-        body : formId
-    });
-
-    let resjson = await datosCliente.json();
     
-    document.getElementById('nombreCliente').value = resjson.nombre;
-    document.getElementById('tipoCliente').value = resjson.tipo;
-    document.getElementById('correoCliente').value = resjson.email;
-    document.getElementById('telefonoCliente').value = resjson.telefono;
-    document.getElementById('direccionCliente').value = resjson.direccion;
-    //document.getElementById('porcentajeCliente').value = resjson.porcentaje;
-    idCliente = resjson.id;
-})
+    let datos = new FormData(formCliente);
 
+    let mensaje;
 
-/* ===================================================
-  Cuando se presiona el boton para editar datos
-  del cliente en el formulario
-  ======================================================*/
-formEditClient.addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    let formDatos = new FormData(formEditClient);
-    formDatos.append('editClientId', idCliente);
-    //f ormDatos.append('porcentajeCliente', '0'); // Aun no manejamos le descuento
+    if(opcion == 1){
+        datos.append('insert', 'OK');
+        mensaje = "Creación de cliente exitosa";
+    }else if(opcion == 2){
+        datos.append('update', 'OK');
+        datos.append('id', idCliente);
+        mensaje = "Modificación exitosa";
+    }
 
     try {
-        let peticion = await fetch('apis/apisCliente.php', {
+
+        let peticion =  await fetch('controllers/Cliente_controller.php',{
             method : 'POST',
-            body : formDatos
+            body : datos
         });
-    
+
         let resjson = await peticion.json();
-    
-        console.log(resjson.respuesta);
-        if(resjson.respuesta == "MODIFICACION CORRECTA"){
-            document.getElementById('closeEdit').click();
-            Swal.fire(
-                'Modificación exitosa!',
-                'You Cliked the button!',
-                'success'
-            ).then( r => {
-                document.getElementById('actualizarPaginaCliente').click();
-            });
+
+        if(resjson.respuesta == "OK"){
+            notificacionExitosa(mensaje);
+            tablaClientes.ajax.reload(null,false);
         }else{
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: resjson.respuesta
-            });
+            notificacionError(resjson.respuesta);
         }
+
     } catch (error) {
         console.log(error)
     }
-
 })
 
+$(document).on('click', '.btnBorrar', async function(){
 
-/* ====================================================
-  Cuando se presiona el boton eliminar de la tabla
-  clientes
- ====================================================== */
- $('.tablaClientes').on('click', '.btnBorrar', async (e) => {
-    e.preventDefault();
-    console.log(e.target.id);
-    let deleteId = new FormData();
-    deleteId.append('deleteId', e.target.id);
+    if(tablaClientes.row(this).child.isShown()){
+        var data = tablaClientes.row(this).data();
+    }else{
+        var data = tablaClientes.row($(this).parents("tr")).data();
+    }
 
     const result = await Swal.fire({
         title: '¿ESTA SEGURO DE ELIMINAR ESTE CLIENTE?',
         text: "Si no lo esta puede cancelar la acción!",
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, delete it!'
+        confirmButtonColor: '#0275d8',
+        cancelButtonColor: '#d9534f',
+        confirmButtonText: 'Si, eliminar!'
     });
 
     if(result.value){
-        try {
+        let datos = new FormData();
+        datos.append('delete', 'OK');
+        datos.append('id', data['id']);
 
-            let peticion = await fetch('apis/apisCliente.php', {
-                method : 'POST',
-                body : deleteId
-            });
-    
-            let resjson = await peticion.json();
-            //console.log(resjson);
-    
-            if(resjson.respuesta == "ELIMINACION CORRECTA"){
-                Swal.fire(
-                    'Eliminación exitosa!',
-                    'You Cliked the button!',
-                    'success'
-                ).then( r => {
-                    document.getElementById('actualizarPaginaCliente').click();
-                });
-            }else{
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: resjson.respuesta
-                });
-            }
-    
-        } catch (error) {
-            console.log(error);
+        let peticion = await fetch('controllers/Cliente_controller.php', {
+            method : 'POST',
+            body : datos
+        });
+
+        let resjson = await peticion.json();
+
+        if(resjson.respuesta === "OK"){
+            notificacionExitosa('Eliminación exitosa');
+            tablaClientes.ajax.reload(null,false);
+        }else{
+            notifacarError(resjson.respuesta);
         }
     }
 
- });
+});
+
+function notificacionError(mensaje){
+    Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: mensaje
+    })
+}
+
+function notificacionExitosa(mensaje){
+    Swal.fire(
+        mensaje,
+        '',
+        'success'
+    ).then(result => {
+        
+    });
+}
+
 

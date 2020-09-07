@@ -84,8 +84,8 @@ if (!isset($_SESSION['usuario'])) {
                 <form id="formInsumos">
 
                     <!--=====================================
-              HEADER DEL MODAL
-          ======================================-->
+                        HEADER DEL MODAL
+                    ======================================-->
 
                     <div class="modal-header">
                         <h5 class="modal-title" id="tituloModal">Nuevo Insumo</h5>
@@ -95,8 +95,8 @@ if (!isset($_SESSION['usuario'])) {
                     </div>
 
                     <!--=====================================
-          CUERPO DEL MODAL
-          ======================================-->
+                    CUERPO DEL MODAL
+                    ======================================-->
 
                     <div class="modal-body">
 
@@ -147,8 +147,8 @@ if (!isset($_SESSION['usuario'])) {
                     </div>
 
                     <!--=====================================
-          PIE DEL MODAL
-          ======================================-->
+                    PIE DEL MODAL
+                    ======================================-->
 
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Cancelar</button>
@@ -202,7 +202,7 @@ if (!isset($_SESSION['usuario'])) {
                                 <input type="number" class="form-control" id="cantidad" name="cantidad" placeholder="Cantidad" required>
                             </div>
 
-                            <!-- ENTRADA PARA EL PRECIO DE COMPRA -->
+                            <!-- ENTRADA PARA EL PRECIO DE COMPRA 
                             <div id="entrada_precio_compra" class="input-group pt-3">
                                 <div class="input-group-prepend">
                                     <span class="input-group-text">
@@ -211,6 +211,7 @@ if (!isset($_SESSION['usuario'])) {
                                 </div>
                                 <input type="text" class="form-control" id="precio_compra" name="precio_compra" placeholder="Precio de compra" required>
                             </div>
+                            -->
 
                             <!-- ENTRADA PARA LA RAZON DEL DESCUENTO DE STOCK -->
                             <div id="entrada_razon_descuento" class="input-group pt-3">

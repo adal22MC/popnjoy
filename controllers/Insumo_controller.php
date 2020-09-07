@@ -91,11 +91,10 @@
 
             if(
                 preg_match('/^[()\-0-9 ]+$/', $_POST['cantidad']) &&
-                preg_match('/^[()\-0-9 ]+$/', $_POST['id']) &&
-                preg_match('/^[()\-0-9. ]+$/', $_POST['precio_compra'])
+                preg_match('/^[()\-0-9 ]+$/', $_POST['id'])
             ){
                 if($_POST['cantidad'] > 0){
-                    $response = Insumo_model::addStock($_POST['id'],$_POST['cantidad'],$_POST['precio_compra']);
+                    $response = Insumo_model::addStock($_POST['id'],$_POST['cantidad'],200);
                     echo json_encode(['respuesta'=>$response]);
                 }else{
                     echo json_encode(['respuesta'=>'La cantidad a aumentar no puede ser 0']);
