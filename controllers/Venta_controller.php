@@ -10,3 +10,11 @@
             echo json_encode(['respuesta'=>$response]);
         }
     }
+
+    if(isset($_POST['obtenerUltimaVenta'])){
+        if(isset($_SESSION['usuario'])){
+            
+            $ventaID = Venta_model::obtenerUltimaVenta();
+            echo json_encode($ventaID);
+        }
+    }

@@ -110,24 +110,39 @@ if (isset($_SESSION['usuario'])) {
             </div>
             <!-- ./col -->
 
+            <div class="card-header">
+              
+              <label for="card-header">De:</label>
+              <input type="date" name="" id="Date" min="2000-01-01" max="2100-12-31">
+
+              <label for="card-header"> A:</label>
+              <input type="date" name="" id="Date2" min="2000-01-01" max="2100-12-31">
+
+              <div class='btn-group'>
+                <button class='btn btn-danger btn-sm btnfechas'><i class='fas fa-file-pdf'></i>
+                </button>
+              </div>
+
+            </div>
+
           </div>
           <!-- /.row -->
 
         </div><!-- /.container-fluid -->
 
-    </section>
+      </section>
 
-    <!-- /.content -->
-  </div>
+      <!-- /.content -->
+    </div>
 
 
-  <?php include("footer.php") ?>
+    <?php include("footer.php") ?>
 
   </div>
   <!-- ./wrapper -->
 
   <?php include('scripts.php'); ?>
-
+  <script src="dist/js/pages/admin.js"></script>
 </body>
 
 </html>

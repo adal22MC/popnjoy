@@ -154,6 +154,7 @@ generarVenta.addEventListener('submit', (e)=>{
                 if(data.respuesta == "OK"){
                     tablaProductos.ajax.reload(null,false);
                     notificacionExitosa('Venta generada');
+                    obtenerUltimaVenta();
                 }else{
                     notificarError(data.respuesta);
                 }
@@ -245,5 +246,23 @@ function notificacionExitosa(mensaje){
         labelPagar.innerText = "Total a pagar : " + totalAPagar;
         // aqui iria
     });
+}
+
+async function obtenerUltimaVenta(){
+    try {
+        var peticionD = new FormData();
+        peticionD.append('obtenerUltimaVenta', 'OK');
+
+        var peticion = await fetch('controllers/Venta_controller.php', {
+            method: 'POST',
+            body: peticionD
+        });
+
+        var resjson = await peticion.json();
+        console.log(resjson.id);
+        window.location = "pdf_venta.php?id_venta="+resjson.id;
+    } catch (error) {
+        console.log(error);
+    }
 }
 

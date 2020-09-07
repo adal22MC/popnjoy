@@ -137,8 +137,86 @@ class Venta_model {
         }
         return true;
     }
-
+    /* Obtenemos el ID de la ultima venta realizada */
+    public static function obtenerUltimaVenta(){
+        try {
+            $conexion = new Conexion();
+            $con = $conexion->getConexion();
+            $pst = $con->prepare("SELECT MAX(id_venta) as id FROM ventas ");
+            $pst->execute();
     
+            $venta = $pst->fetch();
+
+            $conexion->closeConexion();
+            $con = null;
+
+            return $venta;
+
+        } catch(PDOException $e){
+            return $e->getMessage();
+        }
+    }
+    /* Obtenemos la fehca, hora e id del cliente de una venta determinada */ 
+    public static function obtenerHFVenta($id_v){
+        try {
+            $conexion = new Conexion();
+            $con = $conexion->getConexion();
+            $pst = $con->prepare("SELECT fecha, hora, cliente FROM ventas WHERE id_venta = ?");
+            $pst->execute([$id_v]);
+    
+            $venta = $pst->fetch();
+
+            $conexion->closeConexion();
+            $con = null;
+
+            return $venta;
+
+        } catch(PDOException $e){
+            return $e->getMessage();
+        }
+    }
+     /* Obtenemos los productos de  una venta determinada */ 
+     public static function obtenerProductosVenta($id_v){
+        try {
+            $conexion = new Conexion();
+            $con = $conexion->getConexion();
+            $pst = $con->prepare("SELECT p.id_producto as id, p.nombre, c.descripcion, vp.total_venta as total
+            FROM ventas_producto vp, productos p, categorias c 
+            WHERE vp.id_producto = p.id_producto and p.categoria = c.id_categoria and vp.id_venta = ?");
+            $pst->execute([$id_v]);
+    
+            $venta = $pst->fetchAll();
+
+            $conexion->closeConexion();
+            $con = null;
+
+            return $venta;
+
+        } catch(PDOException $e){
+            return $e->getMessage();
+        }
+    }
+    /* Obtenemos los productos de  una venta determinada */ 
+    public static function obtenerIdVentasFecha($fechaI,$fechaF){
+        try {
+            $conexion = new Conexion();
+            $con = $conexion->getConexion();
+            $pst = $con->prepare("SELECT id_venta as id
+            FROM ventas
+            WHERE fecha BETWEEN ? AND ?  ORDER BY fecha ASC");
+            $pst->execute([$fechaI,$fechaF]);
+    
+            $venta = $pst->fetchAll();
+
+            $conexion->closeConexion();
+            $con = null;
+
+            return $venta;
+
+        } catch(PDOException $e){
+            return $e->getMessage();
+        }
+    }
     
 }
 
